@@ -13,12 +13,14 @@ class Csv:
     csv = CsvManager()
 
     def __init__(self):
-        self.csv.load_file('../csv/FL_insurance_sample.csv')
+        pass
+
+    def set_file(self, widget, *data):
+        self.csv.load_file(data[0])
 
     def set_data_in_table(self, widget, *data):
         print data
 
-        return
         text = widget.get_active_text()
         counters = self.csv.get_index_counters()
         columns = ['Atributo', 'Dato', 'Repeticiones']

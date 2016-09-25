@@ -89,7 +89,12 @@ class MainWindow (Gtk.Window):
         self.select_button.connect("clicked", self.on_select_file_clicked)
         self.open_button.connect("clicked", self.on_open_file_clicked)
         self.file_open.connect("activate", self.on_open_file_menu)
-        self.connect("file-path-ready", self.prueba)
+
+        # Send the filename to the csv manager
+        self.connect("file-path-ready", self.csv.set_file)
+        self.connect("file-path-ready", self.set_attributes)
+
+        # Draw shit in the screen
         self.attributes_combo_box.connect("changed", self.csv.set_data_in_table, self.selected_attribute_view)
 
     def create_menu_bar(self):
@@ -311,6 +316,6 @@ class MainWindow (Gtk.Window):
 
         dialog.destroy()
 
-    def prueba(self, *args):
-        print(args[1])
+    def set_attributes(self, widget):
+        
 
