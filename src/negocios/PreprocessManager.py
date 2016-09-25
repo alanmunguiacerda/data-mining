@@ -9,7 +9,7 @@ from gi.repository import Gtk
 
 from gi.repository import GObject
 
-from controladores.CsvManager import CsvManager
+from src.controladores.CsvManager import CsvManager
 
 
 class PreprocessManager:
@@ -25,19 +25,14 @@ class PreprocessManager:
         model, row = selection.get_selection().get_selected()
 
         if not row:
-            return
+            return False
 
-        attribute_index = -1
-        for i, col in enumerate(selection.get_columns()):
-            if col.get_title() == 'Attribute':
-                attribute_index = i
-
-        if attribute_index < 0:
-            return
-
-        # attribute_name = model[row][1]
-        attribute_name = model[row][attribute_index]
+        attribute_name = model[row][1]
         counters = self.csv.get_index_counters(attribute_name)
+
+        if(not counters):
+            return False
+
         columns = ['Number', 'Label', 'Count', 'Weight']
         data_list_store = Gtk.ListStore(*[str]*len(columns))
 
@@ -62,6 +57,8 @@ class PreprocessManager:
     def load_combo_box_attributes(self, *args):
         headers_list = self.csv.headers
 
+        args[2].remove_all()
+
         for var in headers_list:
             args[2].append_text(var)
 
@@ -72,12 +69,10 @@ class PreprocessManager:
 
         list_store = Gtk.ListStore(GObject.TYPE_INT, GObject.TYPE_STRING)
 
-        i = 0
-        for var in headers_list:
+        for i, var in enumerate(headers_list):
             list_store.append([i, var])
-            i += 1
 
-            args[2].set_model(list_store)
+        args[2].set_model(list_store)
 
         for i, col_title in enumerate(["Number", "Attribute"]):
             renderer = Gtk.CellRendererText()
@@ -106,4 +101,8 @@ class PreprocessManager:
         instances = len(self.csv.data)
         labels[2].set_text(str(instances))
         labels[3].set_text("{0:.1f}".format(instances))
+
+    def remove_attribute(self, widget, *args):
+        self.csv.delete_attribute(args[0])
+
 
