@@ -94,6 +94,7 @@ class MainWindow (Gtk.Window):
 
         # Send the filename to the csv manager
         self.connect("file-path-ready", self.clean_attributes_view)
+        self.connect("file-path-ready", self.enable_save_file)
         self.connect("file-path-ready", self.clean_class_combo_box)
         self.connect("file-path-ready", self.preprocess_manager.set_file)
         self.connect("file-path-ready", self.load_combo_box_attributes)
@@ -107,7 +108,7 @@ class MainWindow (Gtk.Window):
         file_menu = Gtk.Menu()
         file_menu_drop_down = Gtk.MenuItem("File")
         # File menu items
-
+        self.file_save.set_sensitive(False)
         file_menu_drop_down.set_submenu(file_menu)
         file_menu.append(self.file_open)
         file_menu.append(self.file_save)
@@ -332,7 +333,7 @@ class MainWindow (Gtk.Window):
                                        Gtk.FileChooserAction.SAVE,
                                        (Gtk.STOCK_CANCEL,
                                         Gtk.ResponseType.CANCEL,
-                                        Gtk.STOCK_OPEN, Gtk.ResponseType.OK))
+                                        Gtk.STOCK_SAVE, Gtk.ResponseType.OK))
 
         response = dialog.run()
 
@@ -379,5 +380,6 @@ class MainWindow (Gtk.Window):
     def clean_class_combo_box(self, *args):
         self.attributes_combo_box.remove_all()
 
-        
+    def enable_save_file(self, *args):
+        self.file_save.set_sensitive(True)
 
