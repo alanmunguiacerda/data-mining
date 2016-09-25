@@ -7,9 +7,9 @@ import gi
 gi.require_version('Gtk', '3.0')
 from gi.repository import Gtk
 
-from src.controladores.CsvManager import CsvManager
+from controladores.CsvManager import CsvManager
 
-class Csv:
+class PreprocessManager:
     csv = CsvManager()
 
     def __init__(self):
@@ -24,23 +24,28 @@ class Csv:
         if not row:
             return
 
-        attributeIndex = -1
+        attribute_index = -1
         for i, col in enumerate(selection.get_columns()):
             if col.get_title() == 'Attribute':
-                attributeIndex = i
+                attribute_index = i
 
-        if attributeIndex < 0:
+        if attribute_index < 0:
             return
 
-        attributeName = model[row][attributeIndex]
-        counters = self.csv.get_index_counters(attributeName)
-        columns = ['Dato', 'Repeticiones']
+        attribute_name = model[row][attribute_index]
+        counters = self.csv.get_index_counters(attribute_name)
+        columns = ['No', 'Label', 'Count', 'Weight']
         data_list_store = Gtk.ListStore(*[str]*len(columns))
 
+        i = 0
         for k, v in counters.iteritems():
-            data_list_store.append([k, str(v)])
+            data_list_store.append([str(i), k, str(v), str(v)])
+            i+=1
 
         data[0].set_model(data_list_store)
+
+        for col in data[0].get_columns():
+            data[0].remove_column(col)
 
         for i, item in enumerate(columns):
             renderer = Gtk.CellRendererText()

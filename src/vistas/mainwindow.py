@@ -1,6 +1,6 @@
 import gi
 
-from negocios.Csv import Csv
+from negocios.PreprocessManager import PreprocessManager
 
 gi.require_version('Gtk', '3.0')
 from gi.repository import Gtk
@@ -18,7 +18,7 @@ class MainWindow (Gtk.Window):
         Gtk.Window.__init__(self, title="Lil Jarvis")
 
         # Csv
-        self.csv = Csv()
+        self.preprocessManager = PreprocessManager()
 
         self.set_border_width(10)
         self.set_default_size(800, 600)
@@ -90,12 +90,12 @@ class MainWindow (Gtk.Window):
         self.file_open.connect("activate", self.on_open_file_menu)
 
         # Send the filename to the csv manager
-        self.connect("file-path-ready", self.csv.set_file)
+        self.connect("file-path-ready", self.preprocessManager.set_file)
         self.connect("file-path-ready", self.on_set_attributes)
         self.connect("file-path-ready", self.on_set_attributes_in_tree_view)
 
         # Draw shit in the screen
-        self.attributes_tree_view.connect("cursor-changed", self.csv.set_data_in_table, self.selected_attribute_view)
+        self.attributes_tree_view.connect("cursor-changed", self.preprocessManager.set_data_in_table, self.selected_attribute_view)
 
     def create_menu_bar(self):
         # File menu
@@ -323,7 +323,7 @@ class MainWindow (Gtk.Window):
         dialog.destroy()
 
     def on_set_attributes(self, *args):
-        headers_list = self.csv.csv.headers
+        headers_list = self.preprocessManager.csv.headers
 
         list_store = Gtk.ListStore(GObject.TYPE_STRING)
         for var in headers_list:
@@ -336,7 +336,7 @@ class MainWindow (Gtk.Window):
         self.attributes_combo_box.add_attribute(cell, "text", 0)
 
     def on_set_attributes_in_tree_view(self, *args):
-        headers_list = self.csv.csv.headers
+        headers_list = self.preprocessManager.csv.headers
 
         list_store = Gtk.ListStore(GObject.TYPE_INT, GObject.TYPE_OBJECT, GObject.TYPE_STRING)
 
