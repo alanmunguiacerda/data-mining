@@ -7,7 +7,10 @@ import gi
 gi.require_version('Gtk', '3.0')
 from gi.repository import Gtk
 
+from gi.repository import GObject
+
 from controladores.CsvManager import CsvManager
+
 
 class PreprocessManager:
     csv = CsvManager()
@@ -32,6 +35,7 @@ class PreprocessManager:
         if attribute_index < 0:
             return
 
+        # attribute_name = model[row][1]
         attribute_name = model[row][attribute_index]
         counters = self.csv.get_index_counters(attribute_name)
         columns = ['No', 'Label', 'Count', 'Weight']
@@ -40,7 +44,7 @@ class PreprocessManager:
         i = 0
         for k, v in counters.iteritems():
             data_list_store.append([str(i), k, str(v), str(v)])
-            i+=1
+            i += 1
 
         data[0].set_model(data_list_store)
 
@@ -54,3 +58,40 @@ class PreprocessManager:
 
     def save_file(self, path):
         self.csv.save_version(path)
+
+    def load_combo_box_attributes(self, *args):
+        headers_list = self.csv.headers
+
+        for var in headers_list:
+            args[2].append_text(var)
+
+        args[2].set_active(0)
+
+    def load_attributes_tree_view(self, *args):
+        headers_list = self.csv.headers
+
+        list_store = Gtk.ListStore(GObject.TYPE_INT, GObject.TYPE_STRING)
+
+        i = 0
+        for var in headers_list:
+            list_store.append([i, var])
+            i += 1
+
+            args[2].set_model(list_store)
+
+        for i, col_title in enumerate(["Number", "Attribute"]):
+            renderer = Gtk.CellRendererText()
+            column = Gtk.TreeViewColumn(col_title, renderer, text=i)
+
+            # Add columns to TreeView
+            args[2].append_column(column)
+
+    def clean_attributes_widgets(self, *args):
+        # Tree view cleaning
+        columns = args[2].get_columns()
+        for column in columns:
+            args[2].remove_column(column)
+
+        # Combo box cleaning
+        args[3].remove_all()
+

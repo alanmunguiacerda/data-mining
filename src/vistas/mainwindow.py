@@ -1,6 +1,7 @@
 import gi
 
 from negocios.PreprocessManager import PreprocessManager
+from vistas.DomainPopup import DomainPopup
 
 gi.require_version('Gtk', '3.0')
 from gi.repository import Gtk
@@ -15,11 +16,17 @@ class MainWindow (Gtk.Window):
         GObject.signal_new('file-path-ready', self, GObject.SIGNAL_RUN_LAST, GObject.TYPE_PYOBJECT,
                            (GObject.TYPE_PYOBJECT,))
 
+        GObject.signal_new('reg-exp-ready', self, GObject.SIGNAL_RUN_LAST, GObject.TYPE_PYOBJECT,
+                           (GObject.TYPE_PYOBJECT,  GObject.TYPE_PYOBJECT,))
+
+        GObject.signal_new('attribute-to-remove', self, GObject.SIGNAL_RUN_LAST, GObject.TYPE_PYOBJECT,
+                           (GObject.TYPE_PYOBJECT, ))
         Gtk.Window.__init__(self, title="Lil Jarvis")
 
         # Csv
         self.preprocess_manager = PreprocessManager()
 
+        # Main window style properties
         self.set_border_width(10)
         self.set_default_size(800, 600)
 
@@ -53,12 +60,10 @@ class MainWindow (Gtk.Window):
         self.file_info_name_attributes = Gtk.Label()
         self.file_info_name_weights = Gtk.Label()
         #    Attributes group widgets
-        self.mark_all_button = Gtk.Button("Mark all")
-        self.none_button = Gtk.Button("None")
-        self.invert_button = Gtk.Button("Invert")
+        self.attributes_remove_button = Gtk.Button("Remove")
         self.regexp_button = Gtk.Button("Domain")
         self.attributes_tree_view = Gtk.TreeView()
-        self.attributes_remove_button = Gtk.Button("Remove")
+        self.disable_remove_domain_button()
         #    Selected attribute group widgets
         self.selected_attribute_statistics_name_label = Gtk.Label()
         self.selected_attribute_statistics_missing_label = Gtk.Label()
@@ -93,15 +98,25 @@ class MainWindow (Gtk.Window):
         self.file_save.connect("activate", self.on_save_file_menu)
 
         # Send the filename to the csv manager
-        self.connect("file-path-ready", self.clean_attributes_view)
-        self.connect("file-path-ready", self.enable_save_file)
-        self.connect("file-path-ready", self.clean_class_combo_box)
+        self.connect("file-path-ready", self.preprocess_manager.clean_attributes_widgets, self.attributes_tree_view,
+                     self.attributes_combo_box)
         self.connect("file-path-ready", self.preprocess_manager.set_file)
-        self.connect("file-path-ready", self.load_combo_box_attributes)
-        self.connect("file-path-ready", self.load_attributes_tree_view)
+        self.connect("file-path-ready", self.preprocess_manager.load_combo_box_attributes, self.attributes_combo_box)
+        self.connect("file-path-ready", self.preprocess_manager.load_attributes_tree_view, self.attributes_tree_view)
 
         # Draw shit in the screen
-        self.attributes_tree_view.connect("cursor-changed", self.preprocess_manager.set_data_in_table, self.selected_attribute_view)
+        self.attributes_tree_view.connect("cursor-changed", self.preprocess_manager.set_data_in_table,
+                                          self.selected_attribute_view)
+
+        # Enable/Disable buttons
+        self.attributes_tree_view.connect("cursor-changed", self.enable_remove_domain_button)
+        self.connect("file-path-ready", self.disable_remove_domain_button)
+
+        # Remove attribute connection
+        self.attributes_remove_button.connect("clicked", self.on_remove_attribute_clicked)
+
+        # Connection to open the domain popup
+        self.regexp_button.connect("clicked", self.on_regexp_clicked)
 
     def create_menu_bar(self):
         # File menu
@@ -190,14 +205,8 @@ class MainWindow (Gtk.Window):
         attributes_button_box.set_spacing(10)
         attributes_button_box.set_homogeneous(True)
 
-        self.mark_all_button.set_border_width(5)
-        attributes_button_box.pack_start(self.mark_all_button, False, False, 0)
-
-        self.none_button.set_border_width(5)
-        attributes_button_box.pack_start(self.none_button, False, False, 0)
-
-        self.invert_button.set_border_width(5)
-        attributes_button_box.pack_start(self.invert_button, False, False, 0)
+        self.attributes_remove_button.set_border_width(5)
+        attributes_button_box.pack_start(self.attributes_remove_button, False, False, 0)
 
         self.regexp_button.set_border_width(5)
         attributes_button_box.pack_start(self.regexp_button, False, False, 0)
@@ -213,10 +222,6 @@ class MainWindow (Gtk.Window):
         attributes_scroll_tree.add(self.attributes_tree_view)
 
         attributes_box.pack_start(attributes_scroll_tree, True, True, 0)
-
-        # Remove attribute button
-        self.attributes_remove_button.set_border_width(5)
-        attributes_box.pack_start(self.attributes_remove_button, False, False, 0)
 
         page_layout.attach(attributes_frame, 0, 2, 1, 2)
 
@@ -342,43 +347,34 @@ class MainWindow (Gtk.Window):
 
         dialog.destroy()
 
-    def load_combo_box_attributes(self, *args):
-        headers_list = self.preprocess_manager.csv.headers
+    def on_remove_attribute_clicked(self, widget):
+        model, row = self.attributes_tree_view.get_selection().get_selected()
+        if not row:
+            return
+        attribute_name = model[row][1]
+        self.emit('attribute-to-remove', attribute_name)
 
-        for var in headers_list:
-            self.attributes_combo_box.append_text(var)
+    def on_regexp_clicked(self, widget):
+        dialog = DomainPopup(self)
 
-    def load_attributes_tree_view(self, *args):
-        headers_list = self.preprocess_manager.csv.headers
+        response = dialog.run()
 
-        list_store = Gtk.ListStore(GObject.TYPE_INT, GObject.TYPE_OBJECT, GObject.TYPE_STRING)
+        if response == Gtk.ResponseType.OK:
+            model, row = self.attributes_tree_view.get_selection().get_selected()
+            if not row:
+                return
+            attribute_name = model[row][1]
+            self.emit('reg-exp-ready', dialog.get_regexp(), attribute_name)
 
-        i = 0
-        for var in headers_list:
-            button = Gtk.Button()
-            list_store.append([i, button, var])
-            i += 1
+        dialog.destroy()
 
-        self.attributes_tree_view.set_model(list_store)
+    def enable_remove_domain_button(self, *args):
+        self.attributes_remove_button.set_sensitive(True)
+        self.regexp_button.set_sensitive(True)
 
-        for i, col_title in enumerate(["Number", " ", "Attribute"]):
-            if i == 1:
-                renderer = Gtk.CellRendererToggle()
-                column = Gtk.TreeViewColumn(col_title, renderer)
-            else:
-                renderer = Gtk.CellRendererText()
-                column = Gtk.TreeViewColumn(col_title, renderer, text=i)
-
-            # Add columns to TreeView
-            self.attributes_tree_view.append_column(column)
-
-    def clean_attributes_view(self, *args):
-        columns = self.attributes_tree_view.get_columns()
-        for column in columns:
-            self.attributes_tree_view.remove_column(column)
-
-    def clean_class_combo_box(self, *args):
-        self.attributes_combo_box.remove_all()
+    def disable_remove_domain_button(self, *args):
+        self.attributes_remove_button.set_sensitive(False)
+        self.regexp_button.set_sensitive(False)
 
     def enable_save_file(self, *args):
         self.file_save.set_sensitive(True)
