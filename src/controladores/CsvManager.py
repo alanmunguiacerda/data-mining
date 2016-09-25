@@ -22,7 +22,7 @@ class CsvManager:
         del self.headers[:]
         del self.data[:]
         del self.dataVersions[:]
-        del self.filename
+        self.filename = None
 
     def load_file(self, filename=None):
         if filename:
@@ -119,7 +119,12 @@ class CsvManager:
         return uniques
 
     def save_version(self, file_path):
-        pass
+        new_file = open(file_path, 'wb')
+        writer = csv.writer(new_file)
+
+        writer.writerow(self.headers)
+        for item in self.data:
+            writer.writerow(item)
 
     def print_headers(self):
         for item in self.headers:

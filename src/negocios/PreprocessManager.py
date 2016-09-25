@@ -51,3 +51,6 @@ class PreprocessManager:
             renderer = Gtk.CellRendererText()
             column = Gtk.TreeViewColumn(item, renderer, text=i)
             data[0].append_column(column)
+
+    def save_file(self, path):
+        self.csv.save_version(path)

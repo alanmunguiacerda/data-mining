@@ -14,6 +14,8 @@ class MainWindow (Gtk.Window):
     def __init__(self):
         GObject.signal_new('file-path-ready', self, GObject.SIGNAL_RUN_LAST, GObject.TYPE_PYOBJECT,
                            (GObject.TYPE_PYOBJECT,))
+        GObject.signal_new('save-file-path-ready', self, GObject.SIGNAL_RUN_LAST, GObject.TYPE_PYOBJECT,
+                           (GObject.TYPE_PYOBJECT,))
 
         Gtk.Window.__init__(self, title="Lil Jarvis")
 
@@ -88,6 +90,9 @@ class MainWindow (Gtk.Window):
         self.select_button.connect("clicked", self.on_select_file_clicked)
         self.open_button.connect("clicked", self.on_open_file_clicked)
         self.file_open.connect("activate", self.on_open_file_menu)
+
+        # Save file connections
+        self.file_save.connect("activate", self.on_save_file_menu)
 
         # Send the filename to the csv manager
         self.connect("file-path-ready", self.preprocessManager.set_file)
@@ -319,6 +324,20 @@ class MainWindow (Gtk.Window):
         if response == Gtk.ResponseType.OK:
             self.text_box.set_text(dialog.get_filename())
             self.emit('file-path-ready', self.text_box.get_text())
+
+        dialog.destroy()
+
+    def on_save_file_menu(self, widget):
+        dialog = Gtk.FileChooserDialog("Save file as: ", self,
+                                       Gtk.FileChooserAction.SAVE,
+                                       (Gtk.STOCK_CANCEL,
+                                        Gtk.ResponseType.CANCEL,
+                                        Gtk.STOCK_OPEN, Gtk.ResponseType.OK))
+
+        response = dialog.run()
+
+        if response == Gtk.ResponseType.OK:
+            self.csv.save_file(dialog.get_filename())
 
         dialog.destroy()
 
