@@ -14,8 +14,6 @@ class MainWindow (Gtk.Window):
     def __init__(self):
         GObject.signal_new('file-path-ready', self, GObject.SIGNAL_RUN_LAST, GObject.TYPE_PYOBJECT,
                            (GObject.TYPE_PYOBJECT,))
-        GObject.signal_new('save-file-path-ready', self, GObject.SIGNAL_RUN_LAST, GObject.TYPE_PYOBJECT,
-                           (GObject.TYPE_PYOBJECT,))
 
         Gtk.Window.__init__(self, title="Lil Jarvis")
 
