@@ -7,7 +7,7 @@ import gi
 gi.require_version('Gtk', '3.0')
 from gi.repository import Gtk
 
-from src.controladores.CsvManager import CsvManager
+from controladores.CsvManager import CsvManager
 
 class Csv:
     csv = CsvManager()
@@ -21,7 +21,7 @@ class Csv:
     def set_data_in_table(self, widget, *data):
         print data
 
-        text = widget.get_active_text()
+        text = widget.get_active()
         counters = self.csv.get_index_counters()
         columns = ['Atributo', 'Dato', 'Repeticiones']
         print counters
