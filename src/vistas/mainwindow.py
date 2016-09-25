@@ -1,5 +1,8 @@
 import gi
 import re
+
+from src.negocios.Csv import Csv
+
 gi.require_version('Gtk', '3.0')
 from gi.repository import Gtk
 from gi.repository import GObject
@@ -14,6 +17,9 @@ class MainWindow (Gtk.Window):
                            (GObject.TYPE_PYOBJECT,))
 
         Gtk.Window.__init__(self, title="Lil Jarvis")
+
+        # Csv
+        self.csv = Csv()
 
         self.set_border_width(10)
         self.set_default_size(800, 600)
@@ -84,6 +90,7 @@ class MainWindow (Gtk.Window):
         self.open_button.connect("clicked", self.on_open_file_clicked)
         self.file_open.connect("activate", self.on_open_file_menu)
         self.connect("file-path-ready", self.prueba)
+        self.attributes_combo_box.connect("changed", self.csv.set_data_in_table, self.selected_attribute_view)
 
     def create_menu_bar(self):
         # File menu
@@ -230,7 +237,11 @@ class MainWindow (Gtk.Window):
         # Statistics tree view
         self.selected_attribute_view.set_border_width(5)
         self.selected_attribute_view.set_vexpand(True)
-        selected_attribute_box.pack_start(self.selected_attribute_view, True, True, 0)
+        scrollTree = Gtk.ScrolledWindow()
+        scrollTree.set_policy(Gtk.PolicyType.AUTOMATIC, Gtk.PolicyType.AUTOMATIC)
+        scrollTree.add(self.selected_attribute_view)
+
+        selected_attribute_box.pack_start(scrollTree, True, True, 0)
 
         page_layout.attach(selected_attribute_frame, 1, 2, 1, 2)
 
