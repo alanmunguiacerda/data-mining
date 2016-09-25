@@ -44,8 +44,10 @@ class PreprocessManager:
 
         data[0].set_model(data_list_store)
 
-        if len(data[0].get_columns()) != len(columns):
-            for i, item in enumerate(columns):
-                renderer = Gtk.CellRendererText()
-                column = Gtk.TreeViewColumn(item, renderer, text=i)
-                data[0].append_column(column)
+        for col in data[0].get_columns():
+            data[0].remove_column(col)
+
+        for i, item in enumerate(columns):
+            renderer = Gtk.CellRendererText()
+            column = Gtk.TreeViewColumn(item, renderer, text=i)
+            data[0].append_column(column)
