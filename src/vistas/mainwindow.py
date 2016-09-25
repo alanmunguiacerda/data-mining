@@ -95,7 +95,7 @@ class MainWindow (Gtk.Window):
         self.connect("file-path-ready", self.on_set_attributes_in_tree_view)
 
         # Draw shit in the screen
-        # self.attributes_combo_box.connect("changed", self.csv.set_data_in_table, self.selected_attribute_view)
+        self.attributes_tree_view.connect("cursor-changed", self.csv.set_data_in_table, self.selected_attribute_view)
 
     def create_menu_bar(self):
         # File menu

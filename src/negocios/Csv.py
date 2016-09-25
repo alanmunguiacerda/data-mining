@@ -7,7 +7,7 @@ import gi
 gi.require_version('Gtk', '3.0')
 from gi.repository import Gtk
 
-from controladores.CsvManager import CsvManager
+from src.controladores.CsvManager import CsvManager
 
 class Csv:
     csv = CsvManager()
@@ -18,19 +18,27 @@ class Csv:
     def set_file(self, widget, *data):
         self.csv.load_file(data[0])
 
-    def set_data_in_table(self, widget, *data):
-        print data
+    def set_data_in_table(self, selection, *data):
+        model, row = selection.get_selection().get_selected()
 
-        text = widget.get_active()
-        counters = self.csv.get_index_counters()
-        columns = ['Atributo', 'Dato', 'Repeticiones']
-        print counters
+        if not row:
+            return
+
+        attributeIndex = -1
+        for i, col in enumerate(selection.get_columns()):
+            if col.get_title() == 'Attribute':
+                attributeIndex = i
+
+        if attributeIndex < 0:
+            return
+
+        attributeName = model[row][attributeIndex]
+        counters = self.csv.get_index_counters(attributeName)
+        columns = ['Dato', 'Repeticiones']
         data_list_store = Gtk.ListStore(*[str]*len(columns))
 
-        for key, value in counters.iteritems():
-            data_list_store.append([key, '', ''])
-            for k, v in value.iteritems():
-                data_list_store.append(['', k, str(v)])
+        for k, v in counters.iteritems():
+            data_list_store.append([k, str(v)])
 
         data[0].set_model(data_list_store)
 
