@@ -7,9 +7,6 @@ import csv
 import exceptions
 import collections
 
-gi.require_version('Gtk', '3.0')
-from gi.repository import Gtk
-
 
 class CsvManager:
     data = []
@@ -24,7 +21,7 @@ class CsvManager:
         del self.data[:]
         del self.dataVersions[:]
 
-    def load_file(self, filename):
+    def load_file(self, filename=None):
         if filename:
             try:
                 loaded_file = open(filename, 'rU')
@@ -99,6 +96,14 @@ class CsvManager:
             count[header] = collections.Counter(elem[i] for elem in self.data)
 
         return count
+
+    def get_index_counters(self, attribute_name):
+        try:
+            index = self.headers.index(attribute_name)
+        except exceptions.Exception:
+            return False
+
+        return collections.Counter(elem[index] for elem in self.data)
 
     def get_unique_attributes(self):
         count = self.get_index_counters()
