@@ -2,7 +2,7 @@
 # -*- coding: utf-8 -*-
 
 import gi
-
+import ntpath
 
 gi.require_version('Gtk', '3.0')
 from gi.repository import Gtk
@@ -38,12 +38,12 @@ class PreprocessManager:
         # attribute_name = model[row][1]
         attribute_name = model[row][attribute_index]
         counters = self.csv.get_index_counters(attribute_name)
-        columns = ['No', 'Label', 'Count', 'Weight']
+        columns = ['Number', 'Label', 'Count', 'Weight']
         data_list_store = Gtk.ListStore(*[str]*len(columns))
 
         i = 0
         for k, v in counters.iteritems():
-            data_list_store.append([str(i), k, str(v), str(v)])
+            data_list_store.append([str(i), k, str(v), "{0:.1f}".format(v)])
             i += 1
 
         data[0].set_model(data_list_store)
@@ -94,4 +94,16 @@ class PreprocessManager:
 
         # Combo box cleaning
         args[3].remove_all()
+
+    def set_file_info(self, widget, *args):
+        labels = [x for x in args if type(x).__name__ == 'Label']
+
+        _, filename = ntpath.split(self.csv.filename)
+        filename = filename.split('.')[0]
+
+        labels[0].set_text(filename)
+        labels[1].set_text(str(len(self.csv.headers)))
+        instances = len(self.csv.data)
+        labels[2].set_text(str(instances))
+        labels[3].set_text("{0:.1f}".format(instances))
 
