@@ -103,6 +103,9 @@ class MainWindow (Gtk.Window):
         self.connect("file-path-ready", self.preprocess_manager.set_file)
         self.connect("file-path-ready", self.preprocess_manager.load_combo_box_attributes, self.attributes_combo_box)
         self.connect("file-path-ready", self.preprocess_manager.load_attributes_tree_view, self.attributes_tree_view)
+        self.connect("file-path-ready", self.preprocess_manager.set_file_info,
+                     self.file_info_name_label, self.file_info_name_attributes,
+                     self.file_info_name_instances, self.file_info_name_weights)
 
         # Draw shit in the screen
         self.attributes_tree_view.connect("cursor-changed", self.preprocess_manager.set_data_in_table,
@@ -179,16 +182,19 @@ class MainWindow (Gtk.Window):
         file_info_frame.add(file_info_grid)
 
         file_info_grid.attach(Gtk.Label("Name: "), 0, 0, 1, 1)
-        file_info_grid.attach(Gtk.Label("Instances: "), 0, 1, 1, 1)
+        file_info_grid.attach(Gtk.Label("Weights: "), 0, 1, 1, 1)
+        file_info_grid.attach(Gtk.Label("Instances: "), 2, 1, 1, 1)
+        file_info_grid.attach(Gtk.Label("Attributes: "), 4, 1, 1, 1)
 
-        file_info_grid.attach(Gtk.Label("Attributes: "), 2, 0, 1, 1)
-        file_info_grid.attach(Gtk.Label("Weights: "), 2, 1, 1, 1)
+        self.file_info_name_label.set_halign(Gtk.Align.START)
+        self.file_info_name_instances.set_halign(Gtk.Align.START)
+        self.file_info_name_attributes.set_halign(Gtk.Align.START)
+        self.file_info_name_weights.set_halign(Gtk.Align.START)
 
-        file_info_grid.attach(self.file_info_name_label, 1, 0, 1, 1)
-        file_info_grid.attach(self.file_info_name_instances, 1, 1, 1, 1)
-
-        file_info_grid.attach(self.file_info_name_attributes, 3, 0, 1, 1)
-        file_info_grid.attach(self.file_info_name_weights, 3, 1, 1, 1)
+        file_info_grid.attach(self.file_info_name_label, 1, 0, 2, 1)
+        file_info_grid.attach(self.file_info_name_weights, 1, 1, 1, 1)
+        file_info_grid.attach(self.file_info_name_instances, 3, 1, 1, 1)
+        file_info_grid.attach(self.file_info_name_attributes, 5, 1, 1, 1)
 
         page_layout.attach(file_info_frame, 0, 1, 1, 1)
 
@@ -286,7 +292,7 @@ class MainWindow (Gtk.Window):
 
         self.status_label.set_markup("<b><big>Lil Jarvis salutes you :D</big></b>")
         self.status_label.set_hexpand(True)
-        self.status_label.set_justify(Gtk.Justification.LEFT)
+        self.status_label.set_halign(Gtk.Align.START)
         status_box.pack_start(self.status_label, True, True, 0)
 
         self.status_log_button.set_border_width(5)
