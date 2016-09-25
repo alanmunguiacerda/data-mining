@@ -1,6 +1,8 @@
 import gi
+import re
 gi.require_version('Gtk', '3.0')
 from gi.repository import Gtk
+from gi.repository import GObject
 
 
 # MainWindow inherits from Gtk.Window
@@ -8,6 +10,9 @@ class MainWindow (Gtk.Window):
 
     # MainWindow class constructor
     def __init__(self):
+        GObject.signal_new('file-path-ready', self, GObject.SIGNAL_RUN_LAST, GObject.TYPE_PYOBJECT,
+                           (GObject.TYPE_PYOBJECT,))
+
         Gtk.Window.__init__(self, title="Lil Jarvis")
 
         self.set_border_width(10)
@@ -30,7 +35,7 @@ class MainWindow (Gtk.Window):
 
         # Variable instantiation
         #    File drop down items
-        self.file_open = Gtk.MenuItem("New")
+        self.file_open = Gtk.MenuItem("Open")
         self.file_save = Gtk.MenuItem("Save")
         self.file_exit = Gtk.MenuItem("Exit")
         #    Open file widgets
@@ -62,6 +67,9 @@ class MainWindow (Gtk.Window):
         self.status_label = Gtk.Label()
         self.status_log_button = Gtk.Button("See log")
 
+        # Control variables
+        self.file_route = ""
+
         # Interface creation
         self.create_menu_bar()
         self.create_notebook()
@@ -71,6 +79,11 @@ class MainWindow (Gtk.Window):
 
     def connections(self):
         self.connect("delete-event", Gtk.main_quit)
+        # Open File connections
+        self.select_button.connect("clicked", self.on_select_file_clicked)
+        self.open_button.connect("clicked", self.on_open_file_clicked)
+        self.file_open.connect("activate", self.on_open_file_menu)
+        self.connect("file-path-ready", self.prueba)
 
     def create_menu_bar(self):
         # File menu
@@ -250,6 +263,43 @@ class MainWindow (Gtk.Window):
 
         self.pre_process_page.pack_start(page_layout, True, True, 0)
 
+    def on_select_file_clicked(self, widget):
+        dialog = Gtk.FileChooserDialog("Select a file: ", self, Gtk.FileChooserAction.OPEN,
+                                       (Gtk.STOCK_CANCEL, Gtk.ResponseType.CANCEL,
+                                        Gtk.STOCK_OPEN, Gtk.ResponseType.OK))
 
+        filter = Gtk.FileFilter()
+        filter.add_pattern("*.csv")
+        dialog.set_filter(filter)
+        response = dialog.run()
 
+        if response == Gtk.ResponseType.OK:
+            self.text_box.set_text(dialog.get_filename())
+
+        dialog.destroy()
+
+    def on_open_file_clicked(self, widget):
+        string = self.text_box.get_text()
+
+        if string and string.strip() and string.endswith('.csv'):
+            self.emit('file-path-ready', self.text_box.get_text())
+
+    def on_open_file_menu(self, widget):
+        dialog = Gtk.FileChooserDialog("Select a file: ", self, Gtk.FileChooserAction.OPEN,
+                                       (Gtk.STOCK_CANCEL, Gtk.ResponseType.CANCEL,
+                                        Gtk.STOCK_OPEN, Gtk.ResponseType.OK))
+
+        filter = Gtk.FileFilter()
+        filter.add_pattern("*.csv")
+        dialog.set_filter(filter)
+        response = dialog.run()
+
+        if response == Gtk.ResponseType.OK:
+            self.text_box.set_text(dialog.get_filename())
+            self.emit('file-path-ready', self.text_box.get_text())
+
+        dialog.destroy()
+
+    def prueba(self, *args):
+        print(args[1])
 
