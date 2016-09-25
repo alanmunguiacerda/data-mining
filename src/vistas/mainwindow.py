@@ -93,6 +93,8 @@ class MainWindow (Gtk.Window):
         self.file_save.connect("activate", self.on_save_file_menu)
 
         # Send the filename to the csv manager
+        self.connect("file-path-ready", self.clean_attributes_view)
+        self.connect("file-path-ready", self.clean_class_combo_box)
         self.connect("file-path-ready", self.preprocess_manager.set_file)
         self.connect("file-path-ready", self.load_combo_box_attributes)
         self.connect("file-path-ready", self.load_attributes_tree_view)
