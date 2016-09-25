@@ -1,7 +1,6 @@
 import gi
-import re
 
-from src.negocios.Csv import Csv
+from negocios.Csv import Csv
 
 gi.require_version('Gtk', '3.0')
 from gi.repository import Gtk
@@ -92,10 +91,11 @@ class MainWindow (Gtk.Window):
 
         # Send the filename to the csv manager
         self.connect("file-path-ready", self.csv.set_file)
-        self.connect("file-path-ready", self.set_attributes)
+        self.connect("file-path-ready", self.on_set_attributes)
+        self.connect("file-path-ready", self.on_set_attributes_in_tree_view)
 
         # Draw shit in the screen
-        self.attributes_combo_box.connect("changed", self.csv.set_data_in_table, self.selected_attribute_view)
+        # self.attributes_combo_box.connect("changed", self.csv.set_data_in_table, self.selected_attribute_view)
 
     def create_menu_bar(self):
         # File menu
@@ -201,7 +201,12 @@ class MainWindow (Gtk.Window):
         # Attributes tree view
         self.attributes_tree_view.set_border_width(5)
         self.attributes_tree_view.set_vexpand(True)
-        attributes_box.pack_start(self.attributes_tree_view, True, True, 0)
+
+        attributes_scroll_tree = Gtk.ScrolledWindow()
+        attributes_scroll_tree.set_policy(Gtk.PolicyType.AUTOMATIC, Gtk.PolicyType.AUTOMATIC)
+        attributes_scroll_tree.add(self.attributes_tree_view)
+
+        attributes_box.pack_start(attributes_scroll_tree, True, True, 0)
 
         # Remove attribute button
         self.attributes_remove_button.set_border_width(5)
@@ -242,6 +247,7 @@ class MainWindow (Gtk.Window):
         # Statistics tree view
         self.selected_attribute_view.set_border_width(5)
         self.selected_attribute_view.set_vexpand(True)
+
         scrollTree = Gtk.ScrolledWindow()
         scrollTree.set_policy(Gtk.PolicyType.AUTOMATIC, Gtk.PolicyType.AUTOMATIC)
         scrollTree.add(self.selected_attribute_view)
@@ -316,6 +322,46 @@ class MainWindow (Gtk.Window):
 
         dialog.destroy()
 
-    def set_attributes(self, widget):
+    def on_set_attributes(self, *args):
+        headers_list = self.csv.csv.headers
+
+        list_store = Gtk.ListStore(GObject.TYPE_STRING)
+        for var in headers_list:
+            list_store.append([var])
+        self.attributes_combo_box.set_model(list_store)
+        self.attributes_combo_box.set_active(0)
+
+        cell = Gtk.CellRendererText()
+        self.attributes_combo_box.pack_start(cell, True)
+        self.attributes_combo_box.add_attribute(cell, "text", 0)
+
+    def on_set_attributes_in_tree_view(self, *args):
+        headers_list = self.csv.csv.headers
+
+        list_store = Gtk.ListStore(GObject.TYPE_INT, GObject.TYPE_OBJECT, GObject.TYPE_STRING)
+
+        i = 0
+        for var in headers_list:
+            button = Gtk.Button()
+            list_store.append([i, button, var])
+            i = i + 1
+
+        self.attributes_tree_view.set_model(list_store)
+
+        for i, col_title in enumerate(["Number", " ", "Attribute"]):
+            # Render means draw or display the data (just display as normal text)
+            if i == 1:
+                renderer = Gtk.CellRendererToggle()
+                column = Gtk.TreeViewColumn(col_title, renderer)
+            else:
+                renderer = Gtk.CellRendererText()
+                column = Gtk.TreeViewColumn(col_title, renderer, text=i)
+
+            # column = Gtk.TreeViewColumn(col_title, renderer, text=i)
+
+            # Add columns to TreeView
+            self.attributes_tree_view.append_column(column)
+
+
         
 
