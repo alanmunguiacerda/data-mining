@@ -6,12 +6,14 @@ import copy
 import csv
 import exceptions
 import collections
+import os
 
 
 class CsvManager:
     data = []
     headers = []
     dataVersions = []
+    filename = None
 
     def __init__(self):
         pass
@@ -20,6 +22,7 @@ class CsvManager:
         del self.headers[:]
         del self.data[:]
         del self.dataVersions[:]
+        self.filename = None
 
     def load_file(self, filename=None):
         if filename:
@@ -29,6 +32,7 @@ class CsvManager:
                 return False
 
             self.reset_shared()
+            self.filename = filename
             reader = csv.reader(loaded_file)
             for item in reader.next():
                 self.headers.append(item)
@@ -113,6 +117,14 @@ class CsvManager:
                 uniques.append(key)
 
         return uniques
+
+    def save_version(self, file_path):
+        new_file = open(file_path, 'wb')
+        writer = csv.writer(new_file)
+
+        writer.writerow(self.headers)
+        for item in self.data:
+            writer.writerow(item)
 
     def print_headers(self):
         for item in self.headers:
