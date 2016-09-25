@@ -67,7 +67,7 @@ class MainWindow (Gtk.Window):
         self.selected_attribute_statistics_unique_label = Gtk.Label()
         self.selected_attribute_view = Gtk.TreeView()
         #    Class attribute group widget
-        self.attributes_combo_box = Gtk.ComboBox()
+        self.attributes_combo_box = Gtk.ComboBoxText()
         #    Status group widgets
         self.status_label = Gtk.Label()
         self.status_log_button = Gtk.Button("See log")
@@ -94,8 +94,8 @@ class MainWindow (Gtk.Window):
 
         # Send the filename to the csv manager
         self.connect("file-path-ready", self.preprocess_manager.set_file)
-        self.connect("file-path-ready", self.on_set_attributes)
-        self.connect("file-path-ready", self.on_set_attributes_in_tree_view)
+        self.connect("file-path-ready", self.load_combo_box_attributes)
+        self.connect("file-path-ready", self.load_attributes_tree_view)
 
         # Draw shit in the screen
         self.attributes_tree_view.connect("cursor-changed", self.preprocess_manager.set_data_in_table, self.selected_attribute_view)
@@ -339,20 +339,13 @@ class MainWindow (Gtk.Window):
 
         dialog.destroy()
 
-    def on_set_attributes(self, *args):
+    def load_combo_box_attributes(self, *args):
         headers_list = self.preprocess_manager.csv.headers
 
-        list_store = Gtk.ListStore(GObject.TYPE_STRING)
         for var in headers_list:
-            list_store.append([var])
-        self.attributes_combo_box.set_model(list_store)
-        self.attributes_combo_box.set_active(0)
+            self.attributes_combo_box.append_text(var)
 
-        cell = Gtk.CellRendererText()
-        self.attributes_combo_box.pack_start(cell, True)
-        self.attributes_combo_box.add_attribute(cell, "text", 0)
-
-    def on_set_attributes_in_tree_view(self, *args):
+    def load_attributes_tree_view(self, *args):
         headers_list = self.preprocess_manager.csv.headers
 
         list_store = Gtk.ListStore(GObject.TYPE_INT, GObject.TYPE_OBJECT, GObject.TYPE_STRING)
@@ -361,12 +354,11 @@ class MainWindow (Gtk.Window):
         for var in headers_list:
             button = Gtk.Button()
             list_store.append([i, button, var])
-            i = i + 1
+            i += 1
 
         self.attributes_tree_view.set_model(list_store)
 
         for i, col_title in enumerate(["Number", " ", "Attribute"]):
-            # Render means draw or display the data (just display as normal text)
             if i == 1:
                 renderer = Gtk.CellRendererToggle()
                 column = Gtk.TreeViewColumn(col_title, renderer)
@@ -374,11 +366,16 @@ class MainWindow (Gtk.Window):
                 renderer = Gtk.CellRendererText()
                 column = Gtk.TreeViewColumn(col_title, renderer, text=i)
 
-            # column = Gtk.TreeViewColumn(col_title, renderer, text=i)
-
             # Add columns to TreeView
             self.attributes_tree_view.append_column(column)
 
+    def clean_attributes_view(self, *args):
+        columns = self.attributes_tree_view.get_columns()
+        for column in columns:
+            self.attributes_tree_view.remove_column(column)
+
+    def clean_class_combo_box(self, *args):
+        self.attributes_combo_box.remove_all()
 
         
 
