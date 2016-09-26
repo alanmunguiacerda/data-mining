@@ -1,4 +1,5 @@
 import gi
+import os
 
 from negocios.PreprocessManager import PreprocessManager
 from vistas.DomainPopup import DomainPopup
@@ -90,7 +91,7 @@ class MainWindow (Gtk.Window):
     def connections(self):
         self.connect("delete-event", Gtk.main_quit)
         # Open File connections
-        self.select_button.connect("clicked", self.on_select_file_clicked)
+        self.select_button.connect("clicked", self.on_open_file_menu)
         self.open_button.connect("clicked", self.on_open_file_clicked)
         self.file_open.connect("activate", self.on_open_file_menu)
 
@@ -302,26 +303,21 @@ class MainWindow (Gtk.Window):
 
         self.pre_process_page.pack_start(page_layout, True, True, 0)
 
-    def on_select_file_clicked(self, widget):
-        dialog = Gtk.FileChooserDialog("Select a file: ", self, Gtk.FileChooserAction.OPEN,
-                                       (Gtk.STOCK_CANCEL, Gtk.ResponseType.CANCEL,
-                                        Gtk.STOCK_OPEN, Gtk.ResponseType.OK))
-
-        filter = Gtk.FileFilter()
-        filter.add_pattern("*.csv")
-        dialog.set_filter(filter)
-        response = dialog.run()
-
-        if response == Gtk.ResponseType.OK:
-            self.text_box.set_text(dialog.get_filename())
-
-        dialog.destroy()
-
     def on_open_file_clicked(self, widget):
         string = self.text_box.get_text()
 
         if string and string.strip() and string.endswith('.csv'):
-            self.emit('file-path-ready', self.text_box.get_text())
+            if os.path.isfile(string):
+                self.emit('file-path-ready', self.text_box.get_text())
+            else:
+                dialog = Gtk.Dialog("Error", self, 0,
+                                    (Gtk.STOCK_OK, Gtk.ResponseType.OK))
+                dialog.set_default_size(200, 75)
+                box = dialog.get_content_area()
+                box.add(Gtk.Label("File not found"))
+                box.show_all()
+                dialog.run()
+                dialog.destroy()
 
     def on_open_file_menu(self, widget):
         dialog = Gtk.FileChooserDialog("Select a file: ", self, Gtk.FileChooserAction.OPEN,
@@ -335,7 +331,8 @@ class MainWindow (Gtk.Window):
 
         if response == Gtk.ResponseType.OK:
             self.text_box.set_text(dialog.get_filename())
-            self.emit('file-path-ready', self.text_box.get_text())
+            if type(widget).__name__ == 'MenuItem':
+                self.on_open_file_clicked(widget)
 
         dialog.destroy()
 
