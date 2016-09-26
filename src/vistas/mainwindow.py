@@ -121,6 +121,11 @@ class MainWindow (Gtk.Window):
         # Connection to open the domain popup
         self.regexp_button.connect("clicked", self.on_regexp_clicked)
 
+        # Remove attribute
+        self.connect("attribute-to-remove", self.preprocess_manager.remove_attribute)
+        self.connect("attribute-to-remove", self.preprocess_manager.load_combo_box_attributes, self.attributes_combo_box)
+        self.connect("attribute-to-remove", self.preprocess_manager.load_attributes_tree_view, self.attributes_tree_view)
+
     def create_menu_bar(self):
         # File menu
         file_menu = Gtk.Menu()
