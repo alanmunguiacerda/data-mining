@@ -303,6 +303,17 @@ class MainWindow (Gtk.Window):
 
         self.pre_process_page.pack_start(page_layout, True, True, 0)
 
+    def send_error_dialog(self, title, message):
+        dialog = Gtk.Dialog(title, self, 0,
+                            (Gtk.STOCK_OK, Gtk.ResponseType.OK))
+
+        dialog.set_default_size(200, 75)
+        box = dialog.get_content_area()
+        box.add(Gtk.Label(message))
+        box.show_all()
+        dialog.run()
+        dialog.destroy()
+
     def on_open_file_clicked(self, widget):
         string = self.text_box.get_text()
 
@@ -310,14 +321,7 @@ class MainWindow (Gtk.Window):
             if os.path.isfile(string):
                 self.emit('file-path-ready', self.text_box.get_text())
             else:
-                dialog = Gtk.Dialog("Error", self, 0,
-                                    (Gtk.STOCK_OK, Gtk.ResponseType.OK))
-                dialog.set_default_size(200, 75)
-                box = dialog.get_content_area()
-                box.add(Gtk.Label("File not found"))
-                box.show_all()
-                dialog.run()
-                dialog.destroy()
+                self.send_error_dialog("Error", "File not found")
 
     def on_open_file_menu(self, widget):
         dialog = Gtk.FileChooserDialog("Select a file: ", self, Gtk.FileChooserAction.OPEN,
