@@ -126,7 +126,7 @@ class PreprocessManager:
 
         # Missing
         missing = self.csv.missing_values(attribute_name)
-        args[2].set_label(str(missing) + "( " + str((missing * 100) / len(counters)) + "% )")
+        args[2].set_label(str(missing) + "( " + str((missing * 100) / len(self.csv.data)) + "% )")
 
         # Distinct label
         args[3].set_label(str(len(counters)))
@@ -145,4 +145,4 @@ class PreprocessManager:
         else:
             args[4].set_label("Numeric" if numeric else "Nominal")
         # Unique label
-        args[5].set_label(str(unique_count) + "( " + str((unique_count * 100) / len(counters)) + "% )")
+        args[5].set_label(str(unique_count) + "( " + str((unique_count * 100) / len(self.csv.data)) + "% )")

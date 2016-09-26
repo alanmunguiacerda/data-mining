@@ -51,6 +51,9 @@ class MainWindow (Gtk.Window):
         self.file_open = Gtk.MenuItem("Open")
         self.file_save = Gtk.MenuItem("Save")
         self.file_exit = Gtk.MenuItem("Exit")
+        #    Edit drop down items
+        self.edit_registers = Gtk.MenuItem("Edit Registers")
+        self.edit_undo = Gtk.MenuItem("Undo")
         #    Open file widgets
         self.text_box = Gtk.Entry()
         self.select_button = Gtk.Button("Select")
@@ -151,6 +154,17 @@ class MainWindow (Gtk.Window):
         file_menu.append(self.file_exit)
 
         self.menu_bar.append(file_menu_drop_down)
+
+        # Edit menu
+        edit_menu = Gtk.Menu()
+        edit_menu_drop_down = Gtk.MenuItem("Edit")
+        # File menu items
+        self.file_save.set_sensitive(False)
+        edit_menu_drop_down.set_submenu(edit_menu)
+        edit_menu.append(self.edit_registers)
+        edit_menu.append(self.edit_undo)
+
+        self.menu_bar.append(edit_menu_drop_down)
 
         self.layout.pack_start(self.menu_bar, False, False, 0)
 
