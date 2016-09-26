@@ -9,7 +9,7 @@ from gi.repository import Gtk
 
 from gi.repository import GObject
 
-from src.controladores.CsvManager import CsvManager
+from controladores.CsvManager import CsvManager
 
 
 class PreprocessManager:
@@ -90,6 +90,14 @@ class PreprocessManager:
         # Combo box cleaning
         args[3].remove_all()
 
+        # Tree view cleaning
+        columns = args[4].get_columns()
+        for column in columns:
+            args[4].remove_column(column)
+
+        for i in range(5, 10):
+            args[i].set_label("")
+
     def set_file_info(self, widget, *args):
         labels = [x for x in args if type(x).__name__ == 'Label']
 
@@ -105,4 +113,36 @@ class PreprocessManager:
     def remove_attribute(self, widget, *args):
         self.csv.delete_attribute(args[0])
 
+    def set_attribute_info(self, *args):
+        model, row = args[0].get_selection().get_selected()
 
+        if not row:
+            return
+
+        attribute_name = model[row][1]
+        counters = self.csv.get_index_counters(attribute_name)
+        # Attribute name label
+        args[1].set_label(attribute_name)
+
+        # Missing
+        missing = self.csv.missing_values(attribute_name)
+        args[2].set_label(str(missing) + "( " + str((missing * 100) / len(counters)) + "% )")
+
+        # Distinct label
+        args[3].set_label(str(len(counters)))
+
+        unique_count = 0
+        numeric = True
+        for k, v in counters.iteritems():
+            if v is 1:
+                unique_count += 1
+            if not k.replace('.', '', 1).isdigit():
+                numeric = False
+
+        # Type label
+        if len(counters) is 2:
+            args[4].set_label("Binary")
+        else:
+            args[4].set_label("Numeric" if numeric else "Nominal")
+        # Unique label
+        args[5].set_label(str(unique_count) + "( " + str((unique_count * 100) / len(counters)) + "% )")

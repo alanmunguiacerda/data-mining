@@ -100,7 +100,10 @@ class MainWindow (Gtk.Window):
 
         # Send the filename to the csv manager
         self.connect("file-path-ready", self.preprocess_manager.clean_attributes_widgets, self.attributes_tree_view,
-                     self.attributes_combo_box)
+                     self.attributes_combo_box, self.selected_attribute_view,
+                     self.selected_attribute_statistics_name_label, self.selected_attribute_statistics_missing_label,
+                     self.selected_attribute_statistics_distinct_label, self.selected_attribute_statistics_type_label,
+                     self.selected_attribute_statistics_unique_label)
         self.connect("file-path-ready", self.preprocess_manager.set_file)
         self.connect("file-path-ready", self.preprocess_manager.load_combo_box_attributes, self.attributes_combo_box)
         self.connect("file-path-ready", self.preprocess_manager.load_attributes_tree_view, self.attributes_tree_view)
@@ -111,6 +114,12 @@ class MainWindow (Gtk.Window):
         # Draw shit in the screen
         self.attributes_tree_view.connect("cursor-changed", self.preprocess_manager.set_data_in_table,
                                           self.selected_attribute_view)
+        self.attributes_tree_view.connect("cursor-changed", self.preprocess_manager.set_attribute_info,
+                                          self.selected_attribute_statistics_name_label,
+                                          self.selected_attribute_statistics_missing_label,
+                                          self.selected_attribute_statistics_distinct_label,
+                                          self.selected_attribute_statistics_type_label,
+                                          self.selected_attribute_statistics_unique_label)
 
         # Enable/Disable buttons
         self.attributes_tree_view.connect("cursor-changed", self.enable_remove_domain_button)
@@ -126,6 +135,8 @@ class MainWindow (Gtk.Window):
         self.connect("attribute-to-remove", self.preprocess_manager.remove_attribute)
         self.connect("attribute-to-remove", self.preprocess_manager.load_combo_box_attributes, self.attributes_combo_box)
         self.connect("attribute-to-remove", self.preprocess_manager.load_attributes_tree_view, self.attributes_tree_view)
+        # Connection to close program
+        self.file_exit.connect("activate", self.on_exit_file_menu)
 
     def create_menu_bar(self):
         # File menu
@@ -257,13 +268,19 @@ class MainWindow (Gtk.Window):
         selected_attribute_statistics_labels_grid.attach(Gtk.Label("Type: "), 4, 0, 1, 1)
         selected_attribute_statistics_labels_grid.attach(Gtk.Label("Unique: "), 4, 1, 1, 1)
 
-        selected_attribute_statistics_labels_grid.attach(self.selected_attribute_statistics_name_label, 1, 0, 1, 1)
+        selected_attribute_statistics_labels_grid.attach(self.selected_attribute_statistics_name_label, 1, 0, 2, 1)
         selected_attribute_statistics_labels_grid.attach(self.selected_attribute_statistics_missing_label, 1, 1, 1, 1)
 
         selected_attribute_statistics_labels_grid.attach(self.selected_attribute_statistics_distinct_label, 3, 1, 1, 1)
 
         selected_attribute_statistics_labels_grid.attach(self.selected_attribute_statistics_type_label, 5, 0, 1, 1)
         selected_attribute_statistics_labels_grid.attach(self.selected_attribute_statistics_unique_label, 5, 1, 1, 1)
+
+        self.selected_attribute_statistics_name_label.set_halign(Gtk.Align.START)
+        self.selected_attribute_statistics_missing_label.set_halign(Gtk.Align.START)
+        self.selected_attribute_statistics_distinct_label.set_halign(Gtk.Align.START)
+        self.selected_attribute_statistics_type_label.set_halign(Gtk.Align.START)
+        self.selected_attribute_statistics_unique_label.set_halign(Gtk.Align.START)
 
         selected_attribute_box.pack_start(selected_attribute_statistics_labels_grid, False, False, 0)
 
@@ -294,6 +311,7 @@ class MainWindow (Gtk.Window):
 
         status_box = Gtk.Box()
         status_box.set_orientation(Gtk.Orientation.HORIZONTAL)
+        status_box.set_border_width(10)
         status_frame.add(status_box)
 
         self.status_label.set_markup("<b><big>Lil Jarvis salutes you :D</big></b>")
@@ -358,6 +376,10 @@ class MainWindow (Gtk.Window):
             self.preprocess_manager.save_file(dialog.get_filename())
 
         dialog.destroy()
+
+    def on_exit_file_menu(self, widget):
+        self.destroy()
+        Gtk.main_quit()
 
     def on_remove_attribute_clicked(self, widget):
         model, row = self.attributes_tree_view.get_selection().get_selected()
