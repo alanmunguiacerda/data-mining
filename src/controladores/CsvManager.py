@@ -6,8 +6,7 @@ import copy
 import csv
 import exceptions
 import collections
-
-from src import constants
+import constants
 
 
 class CsvManager:
