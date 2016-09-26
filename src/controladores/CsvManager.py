@@ -6,7 +6,8 @@ import copy
 import csv
 import exceptions
 import collections
-import os
+
+from src import constants
 
 
 class CsvManager:
@@ -24,22 +25,27 @@ class CsvManager:
         del self.dataVersions[:]
         self.filename = None
 
-    def load_file(self, filename=None):
-        if filename:
-            try:
-                loaded_file = open(filename, 'rU')
-            except exceptions.IOError:
-                return False
+    def load_file(self, filename):
+        if not filename:
+            return
 
-            self.reset_shared()
-            self.filename = filename
-            reader = csv.reader(loaded_file)
-            for item in reader.next():
-                self.headers.append(item)
-            for line in reader:
-                self.data.append(line)
+        try:
+            loaded_file = open(filename, 'rU')
+        except exceptions.IOError:
+            return False
 
-            return True
+        self.reset_shared()
+        self.filename = filename
+        reader = csv.reader(loaded_file)
+        for item in reader.next():
+            self.headers.append(item)
+        for line in reader:
+            for i, element in enumerate(line):
+                if not element or element.isspace():
+                    line[i] = constants.MISSING_DATA_SYMBOL
+            self.data.append(line)
+
+        return True
 
     def new_version(self):
         new_version = {
@@ -56,10 +62,7 @@ class CsvManager:
         self.headers = past_version['headers']
         return True
 
-    def delete_attribute(self, attribute_name=None):
-        if not attribute_name:
-            return False
-
+    def delete_attribute(self, attribute_name):
         try:
             index_found = self.headers.index(attribute_name)
         except exceptions.Exception:
@@ -74,10 +77,7 @@ class CsvManager:
 
         return True
 
-    def delete_tuples(self, rows_index=None):
-        if not rows_index:
-            return False
-
+    def delete_tuples(self, rows_index):
         self.new_version()
 
         for index in rows_index:
@@ -85,7 +85,7 @@ class CsvManager:
 
         return True
 
-    def fill_tuples(self, new_tuples=None):
+    def fill_tuples(self, new_tuples):
         if not new_tuples:
             return False
 
@@ -125,6 +125,14 @@ class CsvManager:
         writer.writerow(self.headers)
         for item in self.data:
             writer.writerow(item)
+
+    def missing_values(self, attribute_name):
+        try:
+            index = self.headers.index(attribute_name)
+        except exceptions.Exception:
+            return False
+
+        return sum(1 for i in self.data if i[index] == constants.MISSING_DATA_SYMBOL)
 
     def print_headers(self):
         for item in self.headers:
