@@ -148,16 +148,16 @@ class PreprocessManager:
         # Unique label
         args[5].set_label(str(unique_count) + "( " + str((unique_count * 100) / len(self.csv.data)) + "% )")
 
-    def set_file_in_table(self, tree_view):
-        headers = copy.deepcopy(self.csv.headers)
+    def set_file_in_table(self, tree_view, modify_cell):
+        headers = ["Action"]
+        headers.extend(copy.deepcopy(self.csv.headers))
 
-        headers.insert(0, "Action")
         list_store = Gtk.ListStore(*[str] * len(headers))
 
-        for row in self.csv.data:
-            row_aux = copy.deepcopy(row)
-            row_aux.insert(0, "")
-            list_store.append(row_aux)
+        data = copy.deepcopy(self.csv.data)
+        for item in data:
+            item.insert(0, "")
+            list_store.append(item)
 
         tree_view.set_model(list_store)
 
@@ -168,6 +168,21 @@ class PreprocessManager:
             renderer = Gtk.CellRendererText()
             if i is not 0:
                 renderer.set_property("editable", True)
-                renderer.connect("edited", tree_view.get_parent().get_parent().get_parent().keep_changes, i)
+                renderer.connect("edited", modify_cell, i)
             column = Gtk.TreeViewColumn(item, renderer, text=i)
             tree_view.append_column(column)
+
+    def delete_rows(self, rows):
+        if self.csv.delete_tuples(rows):
+            print "Delete"
+            print self.csv.data
+
+    def add_rows(self, rows):
+        if self.csv.add_tuples(rows):
+            print "ADD SOMETHING"
+            print self.csv.data
+
+    def modify_rows(self, rows):
+        if self.csv.fill_tuples(rows):
+            print "MODIFY SOMETHING"
+            print self.csv.data

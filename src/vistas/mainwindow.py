@@ -405,9 +405,13 @@ class MainWindow (Gtk.Window):
 
     def on_edit_registers_menu(self, widget):
         dialog = ModifyFileDialog(self)
-        self.preprocess_manager.set_file_in_table(dialog.file_tree_view)
 
         response = dialog.run()
+
+        if response == Gtk.ResponseType.OK:
+            dialog.commit()
+            self.preprocess_manager.set_file_info(None, self.file_info_name_label, self.file_info_name_attributes,
+                     self.file_info_name_instances, self.file_info_name_weights)
 
         dialog.destroy()
 
