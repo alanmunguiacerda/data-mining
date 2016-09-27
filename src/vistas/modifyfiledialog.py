@@ -1,4 +1,5 @@
 import gi
+import  exceptions
 
 gi.require_version('Gtk', '3.0')
 from gi.repository import Gtk
@@ -17,6 +18,7 @@ class ModifyFileDialog(Gtk.Dialog):
         # Auxiliary list
         self.registers_to_delete = []
         self.registers_to_add = []
+        self.registers_to_modify = []
         # Content area (area above buttons)
         area = self.get_content_area()
 
@@ -61,6 +63,12 @@ class ModifyFileDialog(Gtk.Dialog):
     def delete_row(self, *args):
         model, row = self.file_tree_view.get_selection().get_selected()
         if row:
+            if model.get_value(row, 0) == "Add":
+                self.registers_to_add.remove(row)
+
+            if model.get_value(row, 0) == "Mod":
+                self.registers_to_modify.remove(row)
+
             self.registers_to_delete.append(row)
             model.set_value(row, 0, "Del")
             self.remove_button.set_sensitive(True)
@@ -72,12 +80,21 @@ class ModifyFileDialog(Gtk.Dialog):
         for i in range(0, columns_count):
             aux_list.append("Add" if i is 0 else "")
 
+        self.registers_to_add.append(len(model))
         model.append(aux_list)
 
     def keep_changes(self, widget, row_un, change, column):
         model, row = self.file_tree_view.get_selection().get_selected()
         if row:
-            self.registers_to_delete.append(row)
             model.set_value(row, column, change)
-            self.remove_button.set_sensitive(True)
+
+            if model.get_value(row, 0) == "Add":
+                return
+
+            if model.get_value(row, 0) == "Del":
+                self.registers_to_remove.remove(row)
+
+            self.registers_to_modify.append(row)
+
+            model.set_value(row, 0, "Mod")
 
