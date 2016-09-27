@@ -79,8 +79,12 @@ class CsvManager:
     def delete_tuples(self, rows_index):
         self.new_version()
 
+        rows_index = sorted(rows_index ,reverse=True)
         for index in rows_index:
-            del self.data[index]
+            try:
+                del self.data[index]
+            except IndexError:
+                pass
 
         return True
 
