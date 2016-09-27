@@ -409,7 +409,9 @@ class MainWindow (Gtk.Window):
         response = dialog.run()
 
         if response == Gtk.ResponseType.OK:
-            dialog.keep_changes()
+            dialog.commit()
+            self.preprocess_manager.set_file_info(None, self.file_info_name_label, self.file_info_name_attributes,
+                     self.file_info_name_instances, self.file_info_name_weights)
 
         dialog.destroy()
 

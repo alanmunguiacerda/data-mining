@@ -1,9 +1,9 @@
 import gi
-import  exceptions
 
 gi.require_version('Gtk', '3.0')
 from gi.repository import Gtk
 
+from src import constants
 
 class ModifyFileDialog(Gtk.Dialog):
 
@@ -16,10 +16,6 @@ class ModifyFileDialog(Gtk.Dialog):
         self.set_default_size(500, 400)
         self.set_border_width(10)
 
-        # Auxiliary list
-        self.registers_to_delete = []
-        self.registers_to_add = []
-        self.registers_to_modify = []
         # Content area (area above buttons)
         area = self.get_content_area()
 
@@ -54,7 +50,7 @@ class ModifyFileDialog(Gtk.Dialog):
         self.show_all()
 
     def set_treeview_data(self):
-        self.parent.preprocess_manager.set_file_in_table(self.file_tree_view)
+        self.parent.preprocess_manager.set_file_in_table(self.file_tree_view, self.modify_cell)
 
     def create_connections(self):
         self.file_tree_view.connect("cursor-changed", self.enable_remove_button)
@@ -69,27 +65,18 @@ class ModifyFileDialog(Gtk.Dialog):
     def delete_row(self, *args):
         model, row = self.file_tree_view.get_selection().get_selected()
         if row:
-            if model.get_value(row, 0) == "Add":
-                self.registers_to_add.remove(row)
-
-            if model.get_value(row, 0) == "Mod":
-                self.registers_to_modify.remove(row)
-
-            self.registers_to_delete.append(row)
             model.set_value(row, 0, "Del")
             self.remove_button.set_sensitive(True)
 
     def add_row(self, widget):
         model = self.file_tree_view.get_model()
-        columns_count = len(self.file_tree_view.get_columns())
         aux_list = []
-        for i in range(0, columns_count):
-            aux_list.append("Add" if i is 0 else "")
+        for i,_ in enumerate(self.file_tree_view.get_columns()):
+            aux_list.append("Add" if i is 0 else constants.MISSING_DATA_SYMBOL)
 
-        self.registers_to_add.append(len(model))
         model.append(aux_list)
 
-    def keep_changes(self, widget, row_un, change, column):
+    def modify_cell(self, widget, row_un, change, column):
         model, row = self.file_tree_view.get_selection().get_selected()
         if row:
             model.set_value(row, column, change)
@@ -97,10 +84,20 @@ class ModifyFileDialog(Gtk.Dialog):
             if model.get_value(row, 0) == "Add":
                 return
 
-            if model.get_value(row, 0) == "Del":
-                self.registers_to_remove.remove(row)
-
-            self.registers_to_modify.append(row)
-
             model.set_value(row, 0, "Mod")
 
+    def commit(self):
+        add_rows = []
+        modify_rows = {}
+        delete_rows = []
+        for i, row in enumerate(self.file_tree_view.get_model()):
+            if row[0] == 'Add':
+                add_rows.append([cell for cell in row[1:]])
+            elif row[0] == 'Mod':
+                modify_rows[i] = [cell for cell in row[1:]]
+            elif row[0] == 'Del':
+                delete_rows.append(i)
+
+        self.parent.preprocess_manager.add_rows(add_rows)
+        self.parent.preprocess_manager.modify_rows(modify_rows)
+        self.parent.preprocess_manager.delete_rows(delete_rows)

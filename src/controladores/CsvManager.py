@@ -77,6 +77,9 @@ class CsvManager:
         return True
 
     def delete_tuples(self, rows_index):
+        if not rows_index or len(rows_index) < 1:
+            return False
+
         self.new_version()
 
         rows_index = sorted(rows_index ,reverse=True)
@@ -89,13 +92,15 @@ class CsvManager:
         return True
 
     def fill_tuples(self, new_tuples):
-        if not new_tuples:
+        if not new_tuples or len(new_tuples) < 1:
             return False
 
         self.new_version()
 
         for key, value in new_tuples.iteritems():
             self.data[key] = value
+
+        return True
 
     def get_index_counters(self):
         count = {}
@@ -138,10 +143,15 @@ class CsvManager:
         return sum(1 for i in self.data if i[index] == constants.MISSING_DATA_SYMBOL)
 
     def add_tuples(self, tuples):
+        if not tuples or len(tuples) < 1:
+            return False
+
         self.new_version()
 
         for tuple in tuples:
             self.data.append(tuple)
+
+        return True
 
     def print_headers(self):
         for item in self.headers:
