@@ -3,6 +3,7 @@ import os
 
 from negocios.PreprocessManager import PreprocessManager
 from vistas.DomainPopup import DomainPopup
+from vistas.modifyfiledialog import ModifyFileDialog
 
 gi.require_version('Gtk', '3.0')
 from gi.repository import Gtk
@@ -107,6 +108,7 @@ class MainWindow (Gtk.Window):
                      self.selected_attribute_statistics_name_label, self.selected_attribute_statistics_missing_label,
                      self.selected_attribute_statistics_distinct_label, self.selected_attribute_statistics_type_label,
                      self.selected_attribute_statistics_unique_label)
+        self.connect("file-path-ready", self.enable_save_edit_file)
         self.connect("file-path-ready", self.preprocess_manager.set_file)
         self.connect("file-path-ready", self.preprocess_manager.load_combo_box_attributes, self.attributes_combo_box)
         self.connect("file-path-ready", self.preprocess_manager.load_attributes_tree_view, self.attributes_tree_view)
@@ -136,10 +138,15 @@ class MainWindow (Gtk.Window):
 
         # Remove attribute
         self.connect("attribute-to-remove", self.preprocess_manager.remove_attribute)
-        self.connect("attribute-to-remove", self.preprocess_manager.load_combo_box_attributes, self.attributes_combo_box)
-        self.connect("attribute-to-remove", self.preprocess_manager.load_attributes_tree_view, self.attributes_tree_view)
+        self.connect("attribute-to-remove", self.preprocess_manager.load_combo_box_attributes,
+                     self.attributes_combo_box)
+        self.connect("attribute-to-remove", self.preprocess_manager.load_attributes_tree_view,
+                     self.attributes_tree_view)
         # Connection to close program
         self.file_exit.connect("activate", self.on_exit_file_menu)
+
+        # Connection to edit registers
+        self.edit_registers.connect("activate", self.on_edit_registers_menu)
 
     def create_menu_bar(self):
         # File menu
@@ -159,7 +166,8 @@ class MainWindow (Gtk.Window):
         edit_menu = Gtk.Menu()
         edit_menu_drop_down = Gtk.MenuItem("Edit")
         # File menu items
-        self.file_save.set_sensitive(False)
+        self.edit_registers.set_sensitive(False)
+        self.edit_undo.set_sensitive(False)
         edit_menu_drop_down.set_submenu(edit_menu)
         edit_menu.append(self.edit_registers)
         edit_menu.append(self.edit_undo)
@@ -207,7 +215,7 @@ class MainWindow (Gtk.Window):
         # File info group*************************************************************************************
         file_info_frame = Gtk.Frame()
         file_info_frame.set_label("Current Data base")
-        
+
         file_info_grid = Gtk.Grid()
         file_info_grid.set_column_homogeneous(True)
         file_info_frame.add(file_info_grid)
@@ -395,6 +403,14 @@ class MainWindow (Gtk.Window):
         self.destroy()
         Gtk.main_quit()
 
+    def on_edit_registers_menu(self, widget):
+        dialog = ModifyFileDialog(self)
+        self.preprocess_manager.set_file_in_table(dialog.file_tree_view)
+
+        response = dialog.run()
+
+        dialog.destroy()
+
     def on_remove_attribute_clicked(self, widget):
         model, row = self.attributes_tree_view.get_selection().get_selected()
         if not row:
@@ -424,6 +440,7 @@ class MainWindow (Gtk.Window):
         self.attributes_remove_button.set_sensitive(False)
         self.regexp_button.set_sensitive(False)
 
-    def enable_save_file(self, *args):
+    def enable_save_edit_file(self, *args):
         self.file_save.set_sensitive(True)
+        self.edit_registers.set_sensitive(True)
 

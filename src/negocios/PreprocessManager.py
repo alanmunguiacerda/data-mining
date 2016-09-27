@@ -2,6 +2,7 @@
 # -*- coding: utf-8 -*-
 
 import gi
+import copy
 import ntpath
 
 gi.require_version('Gtk', '3.0')
@@ -30,7 +31,7 @@ class PreprocessManager:
         attribute_name = model[row][1]
         counters = self.csv.get_index_counters(attribute_name)
 
-        if(not counters):
+        if not counters:
             return False
 
         columns = ['Number', 'Label', 'Count', 'Weight']
@@ -146,3 +147,27 @@ class PreprocessManager:
             args[4].set_label("Numeric" if numeric else "Nominal")
         # Unique label
         args[5].set_label(str(unique_count) + "( " + str((unique_count * 100) / len(self.csv.data)) + "% )")
+
+    def set_file_in_table(self, tree_view):
+        headers = copy.deepcopy(self.csv.headers)
+
+        headers.insert(0, "Action")
+        list_store = Gtk.ListStore(*[str] * len(headers))
+
+        for row in self.csv.data:
+            row_aux = copy.deepcopy(row)
+            row_aux.insert(0, "")
+            list_store.append(row_aux)
+
+        tree_view.set_model(list_store)
+
+        for col in tree_view.get_columns():
+            tree_view.remove_column(col)
+
+        for i, item in enumerate(headers):
+            renderer = Gtk.CellRendererText()
+            if i is not 0:
+                renderer.set_property("editable", True)
+                renderer.connect("edited", tree_view.get_parent().get_parent().get_parent().keep_changes, i)
+            column = Gtk.TreeViewColumn(item, renderer, text=i)
+            tree_view.append_column(column)
