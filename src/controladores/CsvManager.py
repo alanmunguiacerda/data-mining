@@ -137,6 +137,12 @@ class CsvManager:
 
         return sum(1 for i in self.data if i[index] == constants.MISSING_DATA_SYMBOL)
 
+    def add_tuples(self, tuples):
+        self.new_version()
+
+        for tuple in tuples:
+            self.data.append(tuple)
+
     def print_headers(self):
         for item in self.headers:
             print item

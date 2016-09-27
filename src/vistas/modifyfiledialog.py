@@ -12,6 +12,7 @@ class ModifyFileDialog(Gtk.Dialog):
                             (Gtk.STOCK_CANCEL, Gtk.ResponseType.CANCEL,
                              Gtk.STOCK_OK, Gtk.ResponseType.OK))
 
+        self.parent = parent
         self.set_default_size(500, 400)
         self.set_border_width(10)
 
@@ -46,9 +47,14 @@ class ModifyFileDialog(Gtk.Dialog):
 
         area.add(scroll_tree)
 
+        self.set_treeview_data()
+
         self.create_connections()
 
         self.show_all()
+
+    def set_treeview_data(self):
+        self.parent.preprocess_manager.set_file_in_table(self.file_tree_view)
 
     def create_connections(self):
         self.file_tree_view.connect("cursor-changed", self.enable_remove_button)
