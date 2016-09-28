@@ -6,7 +6,7 @@ from gi.repository import Gtk
 
 class DomainPopup(Gtk.Dialog):
 
-    def __init__(self, parent):
+    def __init__(self, parent, attribute_name):
         Gtk.Dialog.__init__(self, "Define regular expression", parent, Gtk.DialogFlags.MODAL,
                             (Gtk.STOCK_CANCEL, Gtk.ResponseType.CANCEL,
                              Gtk.STOCK_OK, Gtk.ResponseType.OK))
@@ -24,6 +24,9 @@ class DomainPopup(Gtk.Dialog):
 
         dialog_box.add(Gtk.Label("Regular expression: "))
         self.text_box = Gtk.Entry()
+
+        self.text_box.set_text(parent.preprocess_manager.csv.get_domain(attribute_name))
+        
         dialog_box.add(self.text_box)
 
         area.add(dialog_box)

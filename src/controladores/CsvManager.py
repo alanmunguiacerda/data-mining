@@ -14,6 +14,7 @@ class CsvManager:
     headers = []
     dataVersions = []
     filename = None
+    domains = {}
 
     def __init__(self):
         pass
@@ -22,6 +23,7 @@ class CsvManager:
         del self.headers[:]
         del self.data[:]
         del self.dataVersions[:]
+        self.domains.clear()
         self.filename = None
 
     def load_file(self, filename):
@@ -49,16 +51,19 @@ class CsvManager:
     def new_version(self):
         new_version = {
             'data': copy.deepcopy(self.data),
-            'headers': copy.deepcopy(self.headers)
+            'headers': copy.deepcopy(self.headers),
+            'domains': copy.deepcopy(self.domains)
         }
         self.dataVersions.append(new_version)
 
     def rollback(self):
         del self.data[:]
         del self.headers[:]
+        self.domains.clear()
         past_version = self.dataVersions.pop()
         self.data = past_version['data']
         self.headers = past_version['headers']
+        self.domains = past_version['domains']
         return True
 
     def delete_attribute(self, attribute_name):
@@ -68,6 +73,9 @@ class CsvManager:
             return False
 
         self.new_version()
+
+        if attribute_name in self.domains:
+            del self.domains[attribute_name]
 
         del self.headers[index_found]
 
@@ -160,3 +168,13 @@ class CsvManager:
     def print_data(self):
         for row in self.data:
             print row
+
+    def set_domain(self, regexp, attribute):
+        self.domains[attribute] = regexp
+
+    def get_domain(self, attribute):
+        if attribute in self.domains:
+            return self.domains[attribute]
+        else:
+            return ""
+

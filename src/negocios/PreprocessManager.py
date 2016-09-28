@@ -7,9 +7,7 @@ import ntpath
 
 gi.require_version('Gtk', '3.0')
 from gi.repository import Gtk
-
 from gi.repository import GObject
-
 from controladores.CsvManager import CsvManager
 
 
@@ -57,8 +55,6 @@ class PreprocessManager:
 
     def load_combo_box_attributes(self, *args):
         headers_list = self.csv.headers
-
-        args[2].remove_all()
 
         for var in headers_list:
             args[2].append_text(var)
@@ -186,3 +182,6 @@ class PreprocessManager:
         if self.csv.fill_tuples(rows):
             print "MODIFY SOMETHING"
             print self.csv.data
+
+    def set_attribute_domain(self, widget, regexp, attribute):
+        self.csv.set_domain(regexp, attribute)

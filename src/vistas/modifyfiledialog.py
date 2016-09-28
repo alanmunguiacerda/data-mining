@@ -1,12 +1,12 @@
 import gi
 
+import constants
+
 gi.require_version('Gtk', '3.0')
 from gi.repository import Gtk
 
-from src import constants
 
 class ModifyFileDialog(Gtk.Dialog):
-
     def __init__(self, parent):
         Gtk.Dialog.__init__(self, "Modify registers", parent, Gtk.DialogFlags.MODAL,
                             (Gtk.STOCK_CANCEL, Gtk.ResponseType.CANCEL,
@@ -71,7 +71,7 @@ class ModifyFileDialog(Gtk.Dialog):
     def add_row(self, widget):
         model = self.file_tree_view.get_model()
         aux_list = []
-        for i,_ in enumerate(self.file_tree_view.get_columns()):
+        for i, _ in enumerate(self.file_tree_view.get_columns()):
             aux_list.append("Add" if i is 0 else constants.MISSING_DATA_SYMBOL)
 
         model.append(aux_list)
