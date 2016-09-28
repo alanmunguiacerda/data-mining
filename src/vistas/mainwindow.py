@@ -23,6 +23,8 @@ class MainWindow (Gtk.Window):
 
         GObject.signal_new('attribute-to-remove', self, GObject.SIGNAL_RUN_LAST, GObject.TYPE_PYOBJECT,
                            (GObject.TYPE_PYOBJECT, ))
+        GObject.signal_new('refresh-all', self, GObject.SIGNAL_RUN_LAST, GObject.TYPE_PYOBJECT,
+                           (GObject.TYPE_PYOBJECT, ))
         Gtk.Window.__init__(self, title="Lil Jarvis")
 
         # Csv
@@ -141,20 +143,26 @@ class MainWindow (Gtk.Window):
 
         # Remove attribute
         self.connect("attribute-to-remove", self.preprocess_manager.remove_attribute)
-        self.connect("attribute-to-remove", self.preprocess_manager.clean_attributes_widgets, self.attributes_tree_view,
+        self.connect("refresh-all", self.preprocess_manager.clean_attributes_widgets, self.attributes_tree_view,
                      self.attributes_combo_box, self.selected_attribute_view,
                      self.selected_attribute_statistics_name_label, self.selected_attribute_statistics_missing_label,
                      self.selected_attribute_statistics_distinct_label, self.selected_attribute_statistics_type_label,
                      self.selected_attribute_statistics_unique_label)
-        self.connect("attribute-to-remove", self.preprocess_manager.load_combo_box_attributes,
+        self.connect("refresh-all", self.preprocess_manager.load_combo_box_attributes,
                      self.attributes_combo_box)
-        self.connect("attribute-to-remove", self.preprocess_manager.load_attributes_tree_view,
+        self.connect("refresh-all", self.preprocess_manager.load_attributes_tree_view,
                      self.attributes_tree_view)
+        self.connect("refresh-all", self.preprocess_manager.set_file_info,
+                     self.file_info_name_label, self.file_info_name_attributes,
+                     self.file_info_name_instances, self.file_info_name_weights)
         # Connection to close program
         self.file_exit.connect("activate", self.on_exit_file_menu)
 
         # Connection to edit registers
         self.edit_registers.connect("activate", self.on_edit_registers_menu)
+
+        # Connection to undo
+        self.edit_undo.connect("activate", self.preprocess_manager.undo, self)
 
     def create_menu_bar(self):
         # File menu
@@ -175,7 +183,6 @@ class MainWindow (Gtk.Window):
         edit_menu_drop_down = Gtk.MenuItem("Edit")
         # File menu items
         self.edit_registers.set_sensitive(False)
-        self.edit_undo.set_sensitive(False)
         edit_menu_drop_down.set_submenu(edit_menu)
         edit_menu.append(self.edit_registers)
         edit_menu.append(self.edit_undo)
@@ -197,7 +204,7 @@ class MainWindow (Gtk.Window):
         # Page 2
         self.classify_page.set_border_width(10)
 
-        self.notebook.append_page(self.classify_page, Gtk.Label("Clasify"))
+        self.notebook.append_page(self.classify_page, Gtk.Label("Classify"))
 
     def create_pre_process_page(self):
         page_layout = Gtk.Grid()
@@ -429,6 +436,7 @@ class MainWindow (Gtk.Window):
             return
         attribute_name = model[row][1]
         self.emit('attribute-to-remove', attribute_name)
+        self.emit('refresh-all', "DummyText")
 
     def on_regexp_clicked(self, widget):
         model, row = self.attributes_tree_view.get_selection().get_selected()
