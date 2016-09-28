@@ -131,13 +131,21 @@ class MainWindow (Gtk.Window):
         self.connect("file-path-ready", self.disable_remove_domain_button)
 
         # Remove attribute connection
-        self.attributes_remove_button.connect("clicked", self.on_remove_attribute_clicked)
+        self.attributes_remove_button.connect("clicked", self.on_remove_attribute_clicked, )
 
         # Connection to open the domain popup
         self.regexp_button.connect("clicked", self.on_regexp_clicked)
 
+        # Connection to define attribute's domain
+        self.connect('reg-exp-ready', self.preprocess_manager.set_attribute_domain)
+
         # Remove attribute
         self.connect("attribute-to-remove", self.preprocess_manager.remove_attribute)
+        self.connect("attribute-to-remove", self.preprocess_manager.clean_attributes_widgets, self.attributes_tree_view,
+                     self.attributes_combo_box, self.selected_attribute_view,
+                     self.selected_attribute_statistics_name_label, self.selected_attribute_statistics_missing_label,
+                     self.selected_attribute_statistics_distinct_label, self.selected_attribute_statistics_type_label,
+                     self.selected_attribute_statistics_unique_label)
         self.connect("attribute-to-remove", self.preprocess_manager.load_combo_box_attributes,
                      self.attributes_combo_box)
         self.connect("attribute-to-remove", self.preprocess_manager.load_attributes_tree_view,
@@ -423,15 +431,16 @@ class MainWindow (Gtk.Window):
         self.emit('attribute-to-remove', attribute_name)
 
     def on_regexp_clicked(self, widget):
-        dialog = DomainPopup(self)
+        model, row = self.attributes_tree_view.get_selection().get_selected()
+        if not row:
+            return
+        attribute_name = model[row][1]
+
+        dialog = DomainPopup(self, attribute_name)
 
         response = dialog.run()
 
-        if response == Gtk.ResponseType.OK:
-            model, row = self.attributes_tree_view.get_selection().get_selected()
-            if not row:
-                return
-            attribute_name = model[row][1]
+        if response == Gtk.ResponseType.OK and attribute_name:
             self.emit('reg-exp-ready', dialog.get_regexp(), attribute_name)
 
         dialog.destroy()
