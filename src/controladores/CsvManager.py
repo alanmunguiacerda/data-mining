@@ -48,22 +48,29 @@ class CsvManager:
 
         return True
 
-    def new_version(self):
-        new_version = {
-            'data': copy.deepcopy(self.data),
-            'headers': copy.deepcopy(self.headers),
-            'domains': copy.deepcopy(self.domains)
-        }
-        self.dataVersions.append(new_version)
+    def new_version(self, data=False, headers=False, domains=False):
+        print "Versioning {!s}, {!s}, {!s}".format(data, headers, domains)
+        new_version = {}
+        if data:
+            new_version['data'] = copy.deepcopy(self.data)
+        if headers:
+            new_version['headers'] = copy.deepcopy(self.headers)
+        if domains:
+            new_version['domains'] = copy.deepcopy(self.domains)
+        if len(new_version) > 0:
+            self.dataVersions.append(new_version)
 
     def rollback(self):
-        del self.data[:]
-        del self.headers[:]
-        self.domains.clear()
         past_version = self.dataVersions.pop()
-        self.data = past_version['data']
-        self.headers = past_version['headers']
-        self.domains = past_version['domains']
+        if 'data' in past_version:
+            del self.data[:]
+            self.data = past_version['data']
+        if 'headers' in past_version:
+            del self.headers[:]
+            self.headers = past_version['headers']
+        if 'domains' in past_version:
+            self.domains.clear()
+            self.domains = past_version['domains']
         return True
 
     def delete_attribute(self, attribute_name):
@@ -72,7 +79,7 @@ class CsvManager:
         except exceptions.Exception:
             return False
 
-        self.new_version()
+        self.new_version(data = True, headers=True, domains=True)
 
         if attribute_name in self.domains:
             del self.domains[attribute_name]
@@ -88,7 +95,7 @@ class CsvManager:
         if not rows_index or len(rows_index) < 1:
             return False
 
-        self.new_version()
+        self.new_version(data = True)
 
         rows_index = sorted(rows_index ,reverse=True)
         for index in rows_index:
@@ -103,7 +110,7 @@ class CsvManager:
         if not new_tuples or len(new_tuples) < 1:
             return False
 
-        self.new_version()
+        self.new_version(data = True)
 
         for key, value in new_tuples.iteritems():
             self.data[key] = value
@@ -154,7 +161,7 @@ class CsvManager:
         if not tuples or len(tuples) < 1:
             return False
 
-        self.new_version()
+        self.new_version(data=True)
 
         for tuple in tuples:
             self.data.append(tuple)
@@ -170,6 +177,7 @@ class CsvManager:
             print row
 
     def set_domain(self, regexp, attribute):
+        self.new_version(domains=True)
         self.domains[attribute] = regexp
 
     def get_domain(self, attribute):

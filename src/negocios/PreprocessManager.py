@@ -185,3 +185,10 @@ class PreprocessManager:
 
     def set_attribute_domain(self, widget, regexp, attribute):
         self.csv.set_domain(regexp, attribute)
+
+    def undo(self, widget, window):
+        if len(self.csv.dataVersions) > 0:
+            self.csv.rollback()
+            window.emit('refresh-all', "DummyData")
+        if len(self.csv.dataVersions) < 1:
+            window.edit_undo.set_sensitive(False)
