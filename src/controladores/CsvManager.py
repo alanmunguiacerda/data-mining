@@ -3,6 +3,8 @@
 
 import copy
 import csv
+import numpy
+
 import exceptions
 import collections
 
@@ -44,6 +46,8 @@ class CsvManager:
         reader = csv.reader(loaded_file)
         for item in reader.next():
             self.headers.append(item)
+
+
         for line in reader:
             for i, element in enumerate(line):
                 if not element or element.isspace():
@@ -53,7 +57,6 @@ class CsvManager:
         return True
 
     def new_version(self, data=False, headers=False, domains=False):
-        print "Versioning {!s}, {!s}, {!s}".format(data, headers, domains)
         new_version = {}
         if data:
             new_version['data'] = copy.deepcopy(self.data)
@@ -172,14 +175,6 @@ class CsvManager:
 
         return True
 
-    def print_headers(self):
-        for item in self.headers:
-            print item
-
-    def print_data(self):
-        for row in self.data:
-            print row
-
     def set_domain(self, regexp, attribute):
         try:
             re.compile(regexp)
@@ -224,3 +219,65 @@ class CsvManager:
     def check_all_domains(self):
         for elem in self.domains:
             self.check_domain(elem)
+
+    def check_type(self, object):
+        try:
+            float(object)
+            return float
+        except ValueError:
+            return str
+
+    def get_numeric_items(self, attribute_name):
+        try:
+            index_found = self.headers.index(attribute_name)
+        except exceptions.Exception:
+            return False
+
+        try:
+            nums = [float(x[index_found]) for x in self.data]
+        except ValueError:
+            return False
+
+        return nums
+
+    def get_mean(self, attribute_name):
+        nums = self.get_numeric_items(attribute_name)
+        if not nums:
+            return False
+        return numpy.mean(nums)
+
+    def get_median(self, attribute_name):
+        nums = self.get_numeric_items(attribute_name)
+        if not nums:
+            return False
+        return numpy.median(nums)
+
+    def get_mode(self, attribute_name):
+        nums = self.get_numeric_items(attribute_name)
+        if not nums:
+            return []
+
+        hist = collections.Counter(nums)
+        maxRepeat = hist.most_common(1)[0][1]
+        return [x[0] for x in hist.most_common() if x[1] == maxRepeat and x[1] > 1]
+
+    def get_max(self, attribute_name):
+        nums = self.get_numeric_items(attribute_name)
+        if not nums:
+            return False
+
+        return max(nums)
+
+    def get_min(self, attribute_name):
+        nums = self.get_numeric_items(attribute_name)
+        if not nums:
+            return False
+
+        return min(nums)
+
+    def get_standard_deviation(self, attribute_name):
+        nums = self.get_numeric_items(attribute_name)
+        if not nums:
+            return False
+
+        return numpy.std(nums)
