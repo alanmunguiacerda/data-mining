@@ -68,7 +68,12 @@ class PreprocessManager:
         list_store = Gtk.ListStore(GObject.TYPE_INT, GObject.TYPE_STRING, GObject.TYPE_STRING)
 
         for i, var in enumerate(headers_list):
-            list_store.append([i, var, '<span foreground="green">Correct</span>'])
+            if var in self.csv.wrong_registers:
+                list_store.append([i, var, '<span foreground="red">Not valid</span>'])
+            else:
+                list_store.append([i, var, '<span foreground="green">Correct</span>'])
+
+
 
         args[2].set_model(list_store)
 
@@ -93,7 +98,7 @@ class PreprocessManager:
         for column in columns:
             args[4].remove_column(column)
 
-        for i in range(5, 10):
+        for i in range(5, 16):
             args[i].set_label("")
 
     def set_file_info(self, widget, *args):
@@ -144,6 +149,19 @@ class PreprocessManager:
             args[4].set_label("Numeric" if numeric else "Nominal")
         # Unique label
         args[5].set_label(str(unique_count) + "( " + str((unique_count * 100) / len(self.csv.data)) + "% )")
+
+        # Mean
+        args[6].set_label('{!s}'.format(self.csv.get_mean(attribute_name)))
+        # Median
+        args[7].set_label('{!s}'.format(self.csv.get_median(attribute_name)))
+        # Mode
+        args[8].set_label('{!s}'.format(self.csv.get_mode(attribute_name)))
+        # Min
+        args[9].set_label('{!s}'.format(self.csv.get_min(attribute_name)))
+        # Max
+        args[10].set_label('{!s}'.format(self.csv.get_max(attribute_name)))
+        # Std
+        args[11].set_label('{!s}'.format(self.csv.get_standard_deviation(attribute_name)))
 
     def set_file_in_table(self, tree_view, modify_cell):
         headers = ["Action"]

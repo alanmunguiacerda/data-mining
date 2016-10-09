@@ -4,6 +4,8 @@
 import copy
 import csv
 import numpy
+import pickle
+import ntpath
 
 import exceptions
 import collections
@@ -53,6 +55,13 @@ class CsvManager:
                 if not element or element.isspace():
                     line[i] = constants.MISSING_DATA_SYMBOL
             self.data.append(line)
+
+        path_name = str.split(filename, '.')[0]
+        try:
+            self.domains = self.load_obj(path_name)
+            self.check_all_domains()
+        except exceptions.Exception:
+            self.domains = {}
 
         return True
 
@@ -149,12 +158,18 @@ class CsvManager:
         return uniques
 
     def save_version(self, file_path):
+        #TODO: verify that the data doesn't have <lbl></lbl>
         new_file = open(file_path, 'wb')
         writer = csv.writer(new_file)
 
         writer.writerow(self.headers)
         for item in self.data:
             writer.writerow(item)
+
+        path_name = str.split(file_path, '.')[0]
+
+        self.save_obj(self.domains, path_name)
+
 
     def missing_values(self, attribute_name):
         try:
@@ -281,3 +296,11 @@ class CsvManager:
             return False
 
         return numpy.std(nums)
+
+    def save_obj(self, obj, path_filename):
+        with open(path_filename + '.pkl', 'wb') as f:
+            pickle.dump(obj, f, pickle.HIGHEST_PROTOCOL)
+
+    def load_obj(self, path_filename):
+        with open(path_filename + '.pkl', 'rb') as f:
+            return pickle.load(f)
