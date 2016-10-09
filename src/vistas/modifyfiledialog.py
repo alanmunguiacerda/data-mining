@@ -119,4 +119,6 @@ class ModifyFileDialog(Gtk.Dialog):
         self.parent.preprocess_manager.add_rows(add_rows)
         self.parent.preprocess_manager.modify_rows(modify_rows)
         self.parent.preprocess_manager.delete_rows(delete_rows)
-        self.parent.preprocess_manager.
+
+        self.parent.preprocess_manager.csv.check_all_domains()
+        self.parent.emit('refresh-all', 'DummyData')
