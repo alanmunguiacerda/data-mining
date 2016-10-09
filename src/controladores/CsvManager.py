@@ -1,11 +1,13 @@
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
 
-import gi
 import copy
 import csv
 import exceptions
 import collections
+
+import re
+
 import constants
 
 
@@ -15,6 +17,7 @@ class CsvManager:
     dataVersions = []
     filename = None
     domains = {}
+    wrong_registers = {}
 
     def __init__(self):
         pass
@@ -24,6 +27,7 @@ class CsvManager:
         del self.data[:]
         del self.dataVersions[:]
         self.domains.clear()
+        self.wrong_registers.clear()
         self.filename = None
 
     def load_file(self, filename):
@@ -97,7 +101,7 @@ class CsvManager:
 
         self.new_version(data = True)
 
-        rows_index = sorted(rows_index ,reverse=True)
+        rows_index = sorted(rows_index, reverse=True)
         for index in rows_index:
             try:
                 del self.data[index]
@@ -177,8 +181,16 @@ class CsvManager:
             print row
 
     def set_domain(self, regexp, attribute):
+        try:
+            re.compile(regexp)
+        except re.error:
+            return False
+
         self.new_version(domains=True)
         self.domains[attribute] = regexp
+        self.check_domain(attribute)
+
+        return True
 
     def get_domain(self, attribute):
         if attribute in self.domains:
@@ -186,3 +198,29 @@ class CsvManager:
         else:
             return ""
 
+    def check_domain(self, attribute_name):
+        if attribute_name in self.wrong_registers:
+            del self.wrong_registers[attribute_name]
+
+        try:
+            index = self.headers.index(attribute_name)
+        except exceptions.Exception:
+            return False
+
+        if attribute_name in self.domains:
+            domain = self.domains[attribute_name]
+            i = 0
+            for elem in self.data:
+                if re.match(domain, elem[index]) is None:
+                    if attribute_name in self.wrong_registers:
+                        registers_list = self.wrong_registers[attribute_name]
+                    else:
+                        registers_list = []
+                        self.wrong_registers[attribute_name] = registers_list
+
+                    registers_list.append(i)
+                i += 1
+
+    def check_all_domains(self):
+        for elem in self.domains:
+            self.check_domain(elem)

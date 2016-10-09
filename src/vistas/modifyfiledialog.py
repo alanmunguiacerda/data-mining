@@ -1,4 +1,5 @@
 import gi
+import re
 
 import constants
 
@@ -65,37 +66,40 @@ class ModifyFileDialog(Gtk.Dialog):
     def delete_row(self, *args):
         model, row = self.file_tree_view.get_selection().get_selected()
         if row:
-            model.set_value(row, 0, "Del")
+            model.set_value(row, 0, constants.DEL_MARKUP_STRING)
             self.remove_button.set_sensitive(True)
 
     def add_row(self, widget):
         model = self.file_tree_view.get_model()
         aux_list = []
         for i, _ in enumerate(self.file_tree_view.get_columns()):
-            aux_list.append("Add" if i is 0 else constants.MISSING_DATA_SYMBOL)
+            aux_list.append(constants.ADD_MARKUP_STRING if i is 0 else constants.MISSING_DATA_SYMBOL)
 
         model.append(aux_list)
 
-    def modify_cell(self, widget, row_un, change, column):
-        model, row = self.file_tree_view.get_selection().get_selected()
-        if row:
-            model.set_value(row, column, change)
+    def modify_cell(self, widget, row_in_view, change, column):
+        model, row_in_model = self.file_tree_view.get_selection().get_selected()
+        if row_in_model:
+            previous_value = re.sub(constants.SPAN_MARKUP_REGEXP, "", model.get_value(row_in_model, column))
 
-            if model.get_value(row, 0) == "Add":
+            if model.get_value(row_in_model, 0) == constants.ADD_MARKUP_STRING \
+                    or previous_value == change:
                 return
 
-            model.set_value(row, 0, "Mod")
+            model.set_value(row_in_model, column, change)
+
+            model.set_value(row_in_model, 0, constants.MOD_MARKUP_STRING)
 
     def commit(self):
         add_rows = []
         modify_rows = {}
         delete_rows = []
         for i, row in enumerate(self.file_tree_view.get_model()):
-            if row[0] == 'Add':
+            if row[0] == constants.ADD_MARKUP_STRING:
                 add_rows.append([cell for cell in row[1:]])
-            elif row[0] == 'Mod':
+            elif row[0] == constants.MOD_MARKUP_STRING:
                 modify_rows[i] = [cell for cell in row[1:]]
-            elif row[0] == 'Del':
+            elif row[0] == constants.DEL_MARKUP_STRING:
                 delete_rows.append(i)
 
         self.parent.preprocess_manager.add_rows(add_rows)
