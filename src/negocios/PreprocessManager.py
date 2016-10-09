@@ -1,6 +1,6 @@
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
-
+import exceptions
 import gi
 import copy
 import ntpath
@@ -9,6 +9,7 @@ gi.require_version('Gtk', '3.0')
 from gi.repository import Gtk
 from gi.repository import GObject
 from controladores.CsvManager import CsvManager
+from vistas.errordialog import ErrorDialog
 
 
 class PreprocessManager:
@@ -64,16 +65,16 @@ class PreprocessManager:
     def load_attributes_tree_view(self, *args):
         headers_list = self.csv.headers
 
-        list_store = Gtk.ListStore(GObject.TYPE_INT, GObject.TYPE_STRING)
+        list_store = Gtk.ListStore(GObject.TYPE_INT, GObject.TYPE_STRING, GObject.TYPE_STRING)
 
         for i, var in enumerate(headers_list):
-            list_store.append([i, var])
+            list_store.append([i, var, '<span foreground="green">Correct</span>'])
 
         args[2].set_model(list_store)
 
-        for i, col_title in enumerate(["Number", "Attribute"]):
+        for i, col_title in enumerate(["Number", "Attribute", "Status"]):
             renderer = Gtk.CellRendererText()
-            column = Gtk.TreeViewColumn(col_title, renderer, text=i)
+            column = Gtk.TreeViewColumn(col_title, renderer, markup=i)
 
             # Add columns to TreeView
             args[2].append_column(column)
@@ -151,9 +152,26 @@ class PreprocessManager:
         list_store = Gtk.ListStore(*[str] * len(headers))
 
         data = copy.deepcopy(self.csv.data)
+
+        i = 0
         for item in data:
+            j = 0
+            for elem in self.csv.headers:
+                if elem in self.csv.wrong_registers:
+                    wrong_registers = self.csv.wrong_registers[elem]
+                    try:
+                        index = wrong_registers.index(i)
+                    except exceptions.Exception:
+                        index = -1
+
+                    if index is not -1:
+                        item[j] = '<span background="red" foreground="white">' + item[j] + '</span>'
+                j += 1
+
             item.insert(0, "")
+
             list_store.append(item)
+            i += 1
 
         tree_view.set_model(list_store)
 
@@ -162,10 +180,13 @@ class PreprocessManager:
 
         for i, item in enumerate(headers):
             renderer = Gtk.CellRendererText()
+
             if i is not 0:
                 renderer.set_property("editable", True)
                 renderer.connect("edited", modify_cell, i)
-            column = Gtk.TreeViewColumn(item, renderer, text=i)
+
+            column = Gtk.TreeViewColumn(item, renderer, markup=i)
+
             tree_view.append_column(column)
 
     def delete_rows(self, rows):
@@ -183,8 +204,17 @@ class PreprocessManager:
             print "MODIFY SOMETHING"
             print self.csv.data
 
-    def set_attribute_domain(self, widget, regexp, attribute):
-        self.csv.set_domain(regexp, attribute)
+    def set_attribute_domain(self, widget, regexp, attribute, row, view):
+        if self.csv.set_domain(regexp, attribute):
+            pass
+        else:
+            ErrorDialog("Error", "Invalid regular expression", None)
+
+        model = view.get_model()
+        if attribute in self.csv.wrong_registers:
+            model.set_value(row, 2, '<span foreground="red">Not valid</span>')
+        else:
+            model.set_value(row, 2, '<span foreground="green">Correct</span>')
 
     def undo(self, widget, window):
         if len(self.csv.dataVersions) > 0:

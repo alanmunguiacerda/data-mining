@@ -4,6 +4,7 @@ import os
 from negocios.PreprocessManager import PreprocessManager
 from vistas.DomainPopup import DomainPopup
 from vistas.modifyfiledialog import ModifyFileDialog
+from vistas.errordialog import ErrorDialog
 
 gi.require_version('Gtk', '3.0')
 from gi.repository import Gtk
@@ -19,7 +20,7 @@ class MainWindow (Gtk.Window):
                            (GObject.TYPE_PYOBJECT,))
 
         GObject.signal_new('reg-exp-ready', self, GObject.SIGNAL_RUN_LAST, GObject.TYPE_PYOBJECT,
-                           (GObject.TYPE_PYOBJECT,  GObject.TYPE_PYOBJECT,))
+                           (GObject.TYPE_PYOBJECT,  GObject.TYPE_PYOBJECT, Gtk.TreeIter))
 
         GObject.signal_new('attribute-to-remove', self, GObject.SIGNAL_RUN_LAST, GObject.TYPE_PYOBJECT,
                            (GObject.TYPE_PYOBJECT, ))
@@ -139,7 +140,7 @@ class MainWindow (Gtk.Window):
         self.regexp_button.connect("clicked", self.on_regexp_clicked)
 
         # Connection to define attribute's domain
-        self.connect('reg-exp-ready', self.preprocess_manager.set_attribute_domain)
+        self.connect('reg-exp-ready', self.preprocess_manager.set_attribute_domain, self.attributes_tree_view)
 
         # Remove attribute
         self.connect("attribute-to-remove", self.preprocess_manager.remove_attribute)
@@ -363,17 +364,6 @@ class MainWindow (Gtk.Window):
 
         self.pre_process_page.pack_start(page_layout, True, True, 0)
 
-    def send_error_dialog(self, title, message):
-        dialog = Gtk.Dialog(title, self, 0,
-                            (Gtk.STOCK_OK, Gtk.ResponseType.OK))
-
-        dialog.set_default_size(200, 75)
-        box = dialog.get_content_area()
-        box.add(Gtk.Label(message))
-        box.show_all()
-        dialog.run()
-        dialog.destroy()
-
     def on_open_file_clicked(self, widget):
         string = self.text_box.get_text()
 
@@ -381,7 +371,7 @@ class MainWindow (Gtk.Window):
             if os.path.isfile(string):
                 self.emit('file-path-ready', self.text_box.get_text())
             else:
-                self.send_error_dialog("Error", "File not found")
+                ErrorDialog("Error", "File not found", None)
 
     def on_open_file_menu(self, widget):
         dialog = Gtk.FileChooserDialog("Select a file: ", self, Gtk.FileChooserAction.OPEN,
@@ -449,7 +439,7 @@ class MainWindow (Gtk.Window):
         response = dialog.run()
 
         if response == Gtk.ResponseType.OK and attribute_name:
-            self.emit('reg-exp-ready', dialog.get_regexp(), attribute_name)
+            self.emit('reg-exp-ready', dialog.get_regexp(), attribute_name, row)
 
         dialog.destroy()
 
