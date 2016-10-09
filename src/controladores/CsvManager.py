@@ -16,7 +16,6 @@ import constants
 class CsvManager:
     data = []
     headers = []
-    attribute_types = []
     dataVersions = []
     filename = None
     domains = {}
@@ -29,7 +28,6 @@ class CsvManager:
         del self.headers[:]
         del self.data[:]
         del self.dataVersions[:]
-        del self.attribute_types[:]
         self.domains.clear()
         self.wrong_registers.clear()
         self.filename = None
