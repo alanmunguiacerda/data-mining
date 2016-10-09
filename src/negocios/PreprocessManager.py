@@ -171,10 +171,8 @@ class PreprocessManager:
 
         data = copy.deepcopy(self.csv.data)
 
-        i = 0
-        for item in data:
-            j = 0
-            for elem in self.csv.headers:
+        for i, item in enumerate(data):
+            for j, elem in enumerate(self.csv.headers):
                 if elem in self.csv.wrong_registers:
                     wrong_registers = self.csv.wrong_registers[elem]
                     try:
@@ -184,12 +182,9 @@ class PreprocessManager:
 
                     if index is not -1:
                         item[j] = '<span background="red" foreground="white">' + item[j] + '</span>'
-                j += 1
-
             item.insert(0, "")
 
             list_store.append(item)
-            i += 1
 
         tree_view.set_model(list_store)
 
@@ -208,19 +203,13 @@ class PreprocessManager:
             tree_view.append_column(column)
 
     def delete_rows(self, rows):
-        if self.csv.delete_tuples(rows):
-            print "Delete"
-            print self.csv.data
+        self.csv.delete_tuples(rows)
 
     def add_rows(self, rows):
-        if self.csv.add_tuples(rows):
-            print "ADD SOMETHING"
-            print self.csv.data
+        self.csv.add_tuples(rows)
 
     def modify_rows(self, rows):
-        if self.csv.fill_tuples(rows):
-            print "MODIFY SOMETHING"
-            print self.csv.data
+        self.csv.fill_tuples(rows)
 
     def set_attribute_domain(self, widget, regexp, attribute, row, view):
         if self.csv.set_domain(regexp, attribute):

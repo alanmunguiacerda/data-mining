@@ -82,11 +82,19 @@ class ModifyFileDialog(Gtk.Dialog):
         if row_in_model:
             previous_value = re.sub(constants.SPAN_MARKUP_REGEXP, "", model.get_value(row_in_model, column))
 
-            if model.get_value(row_in_model, 0) == constants.ADD_MARKUP_STRING \
-                    or previous_value == change:
+            if previous_value == change:
                 return
 
+            attribute_name = self.parent.preprocess_manager.csv.headers[column-1]
+            domain = self.parent.preprocess_manager.csv.get_domain(attribute_name)
+
+            if not re.match(domain, change):
+                change = '<span background="red" foreground="white">' + change + '</span>'
+
             model.set_value(row_in_model, column, change)
+
+            if model.get_value(row_in_model, 0) == constants.ADD_MARKUP_STRING:
+                return
 
             model.set_value(row_in_model, 0, constants.MOD_MARKUP_STRING)
 
@@ -102,6 +110,13 @@ class ModifyFileDialog(Gtk.Dialog):
             elif row[0] == constants.DEL_MARKUP_STRING:
                 delete_rows.append(i)
 
+        for i, row in enumerate(add_rows):
+            add_rows[i] = [re.sub(constants.SPAN_MARKUP_REGEXP, "", item) for item in row]
+
+        for k, v in modify_rows.iteritems():
+            modify_rows[k] = [re.sub(constants.SPAN_MARKUP_REGEXP, "", item) for item in v]
+
         self.parent.preprocess_manager.add_rows(add_rows)
         self.parent.preprocess_manager.modify_rows(modify_rows)
         self.parent.preprocess_manager.delete_rows(delete_rows)
+        self.parent.preprocess_manager.
