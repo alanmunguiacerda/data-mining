@@ -65,19 +65,18 @@ class PreprocessManager:
     def load_attributes_tree_view(self, *args):
         headers_list = self.csv.headers
 
-        list_store = Gtk.ListStore(GObject.TYPE_INT, GObject.TYPE_STRING, GObject.TYPE_STRING)
+        list_store = Gtk.ListStore(GObject.TYPE_INT, GObject.TYPE_STRING,
+                                   GObject.TYPE_STRING, GObject.TYPE_STRING)
 
         for i, var in enumerate(headers_list):
-            if var in self.csv.wrong_registers:
-                list_store.append([i, var, '<span foreground="red">Not valid</span>'])
-            else:
-                list_store.append([i, var, '<span foreground="green">Correct</span>'])
-
-
+            valid = (("green", "Correct"), ("red", "Not valid"))[var in self.csv.wrong_registers]
+            list_store.append([i, var,
+                               '<span foreground="'+valid[0]+'">' + valid[1] + '</span>',
+                               self.csv.get_domain(var)])
 
         args[2].set_model(list_store)
 
-        for i, col_title in enumerate(["Number", "Attribute", "Status"]):
+        for i, col_title in enumerate(["Number", "Attribute", "Status", "Domain"]):
             renderer = Gtk.CellRendererText()
             column = Gtk.TreeViewColumn(col_title, renderer, markup=i)
 
