@@ -205,6 +205,8 @@ class MainWindow (Gtk.Window):
         self.edit_registers.set_sensitive(False)
         edit_menu_drop_down.set_submenu(edit_menu)
         edit_menu.append(self.edit_registers)
+
+        self.edit_undo.set_sensitive(False)
         edit_menu.append(self.edit_undo)
 
         self.menu_bar.append(edit_menu_drop_down)
