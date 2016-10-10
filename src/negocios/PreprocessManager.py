@@ -217,6 +217,7 @@ class PreprocessManager:
             ErrorDialog("Error", "Invalid regular expression", None)
 
         model = view.get_model()
+        model.set_value(row, 3, regexp)
         if attribute in self.csv.wrong_registers:
             model.set_value(row, 2, '<span foreground="red">Not valid</span>')
         else:
