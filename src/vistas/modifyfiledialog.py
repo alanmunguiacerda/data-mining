@@ -85,6 +85,10 @@ class ModifyFileDialog(Gtk.Dialog):
             if previous_value == change:
                 return
 
+            #FIXME: fix this thing
+            if change == '' or change.isspace() or change == None:
+                change = constants.MISSING_DATA_SYMBOL
+
             attribute_name = self.parent.preprocess_manager.csv.headers[column-1]
             domain = self.parent.preprocess_manager.csv.get_domain(attribute_name)
 
