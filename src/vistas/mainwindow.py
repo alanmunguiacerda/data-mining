@@ -26,6 +26,8 @@ class MainWindow (Gtk.Window):
                            (GObject.TYPE_PYOBJECT, ))
         GObject.signal_new('refresh-all', self, GObject.SIGNAL_RUN_LAST, GObject.TYPE_PYOBJECT,
                            (GObject.TYPE_PYOBJECT, ))
+        GObject.signal_new('registers-edited', self, GObject.SIGNAL_RUN_LAST, GObject.TYPE_PYOBJECT,
+                           ())
         Gtk.Window.__init__(self, title="Lil Jarvis")
 
         # Csv
@@ -180,6 +182,9 @@ class MainWindow (Gtk.Window):
 
         # Connection to edit registers
         self.edit_registers.connect("activate", self.on_edit_registers_menu)
+
+        # Registers edited sets undo active
+        self.connect('registers-edited', self.on_registers_edited)
 
         # Connection to undo
         self.edit_undo.connect("activate", self.preprocess_manager.undo, self)
@@ -523,4 +528,7 @@ class MainWindow (Gtk.Window):
     def enable_save_edit_file(self, *args):
         self.file_save.set_sensitive(True)
         self.edit_registers.set_sensitive(True)
+
+    def on_registers_edited(self, *args):
+        self.edit_undo.set_sensitive(True)
 
