@@ -86,7 +86,7 @@ class ModifyFileDialog(Gtk.Dialog):
                 return
 
             #FIXME: fix this thing
-            if change == '' or change.isspace() or change == None or change == constants.NO_MRKUP_DATA_SYMBOL:
+            if change == '' or change.isspace() or change == None:
                 change = constants.MISSING_DATA_SYMBOL
 
             attribute_name = self.parent.preprocess_manager.csv.headers[column-1]
