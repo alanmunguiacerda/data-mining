@@ -49,7 +49,7 @@ class PreprocessManager:
 
         for i, item in enumerate(columns):
             renderer = Gtk.CellRendererText()
-            column = Gtk.TreeViewColumn(item, renderer, text=i)
+            column = Gtk.TreeViewColumn(item, renderer, markup=i)
             data[0].append_column(column)
 
     def save_file(self, path):

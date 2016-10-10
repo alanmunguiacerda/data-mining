@@ -52,7 +52,7 @@ class CsvManager:
 
         for line in reader:
             for i, element in enumerate(line):
-                if not element or element.isspace():
+                if not element or element.isspace() or element == constants.NO_MRKUP_DATA_SYMBOL:
                     line[i] = constants.MISSING_DATA_SYMBOL
             self.data.append(line)
 
