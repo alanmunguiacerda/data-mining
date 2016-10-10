@@ -33,7 +33,7 @@ class MainWindow (Gtk.Window):
 
         # Main window style properties
         self.set_border_width(10)
-        self.set_default_size(800, 600)
+        self.set_default_size(1100, 650)
 
         # Main layout
         self.layout = Gtk.Box()
@@ -78,12 +78,12 @@ class MainWindow (Gtk.Window):
         self.selected_attribute_statistics_distinct_label = Gtk.Label()
         self.selected_attribute_statistics_type_label = Gtk.Label()
         self.selected_attribute_statistics_unique_label = Gtk.Label()
-        self.selected_attribute_statistics_mean_label = Gtk.Label()
-        self.selected_attribute_statistics_median_label = Gtk.Label()
-        self.selected_attribute_statistics_mode_label = Gtk.Label()
-        self.selected_attribute_statistics_min_label = Gtk.Label()
-        self.selected_attribute_statistics_max_label = Gtk.Label()
-        self.selected_attribute_statistics_std_label = Gtk.Label()
+        self.numeric_statistics_mean_label = Gtk.Label()
+        self.numeric_statistics_median_label = Gtk.Label()
+        self.numeric_statistics_mode_label = Gtk.Label()
+        self.numeric_statistics_min_label = Gtk.Label()
+        self.numeric_statistics_max_label = Gtk.Label()
+        self.numeric_statistics_std_label = Gtk.Label()
         self.selected_attribute_view = Gtk.TreeView()
         #    Class attribute group widget
         self.attributes_combo_box = Gtk.ComboBoxText()
@@ -116,10 +116,10 @@ class MainWindow (Gtk.Window):
                      self.attributes_combo_box, self.selected_attribute_view,
                      self.selected_attribute_statistics_name_label, self.selected_attribute_statistics_missing_label,
                      self.selected_attribute_statistics_distinct_label, self.selected_attribute_statistics_type_label,
-                     self.selected_attribute_statistics_unique_label, self.selected_attribute_statistics_mean_label,
-                     self.selected_attribute_statistics_median_label, self.selected_attribute_statistics_mode_label,
-                     self.selected_attribute_statistics_min_label, self.selected_attribute_statistics_max_label,
-                     self.selected_attribute_statistics_std_label)
+                     self.selected_attribute_statistics_unique_label, self.numeric_statistics_mean_label,
+                     self.numeric_statistics_median_label, self.numeric_statistics_mode_label,
+                     self.numeric_statistics_min_label, self.numeric_statistics_max_label,
+                     self.numeric_statistics_std_label)
         self.connect("file-path-ready", self.enable_save_edit_file)
         self.connect("file-path-ready", self.preprocess_manager.set_file)
         self.connect("file-path-ready", self.preprocess_manager.load_combo_box_attributes, self.attributes_combo_box)
@@ -137,12 +137,12 @@ class MainWindow (Gtk.Window):
                                           self.selected_attribute_statistics_distinct_label,
                                           self.selected_attribute_statistics_type_label,
                                           self.selected_attribute_statistics_unique_label,
-                                          self.selected_attribute_statistics_mean_label,
-                                          self.selected_attribute_statistics_median_label,
-                                          self.selected_attribute_statistics_mode_label,
-                                          self.selected_attribute_statistics_min_label,
-                                          self.selected_attribute_statistics_max_label,
-                                          self.selected_attribute_statistics_std_label
+                                          self.numeric_statistics_mean_label,
+                                          self.numeric_statistics_median_label,
+                                          self.numeric_statistics_mode_label,
+                                          self.numeric_statistics_min_label,
+                                          self.numeric_statistics_max_label,
+                                          self.numeric_statistics_std_label
                                           )
 
         # Enable/Disable buttons
@@ -164,10 +164,10 @@ class MainWindow (Gtk.Window):
                      self.attributes_combo_box, self.selected_attribute_view,
                      self.selected_attribute_statistics_name_label, self.selected_attribute_statistics_missing_label,
                      self.selected_attribute_statistics_distinct_label, self.selected_attribute_statistics_type_label,
-                     self.selected_attribute_statistics_unique_label, self.selected_attribute_statistics_mean_label,
-                     self.selected_attribute_statistics_median_label, self.selected_attribute_statistics_mode_label,
-                     self.selected_attribute_statistics_min_label, self.selected_attribute_statistics_max_label,
-                     self.selected_attribute_statistics_std_label)
+                     self.selected_attribute_statistics_unique_label, self.numeric_statistics_mean_label,
+                     self.numeric_statistics_median_label, self.numeric_statistics_mode_label,
+                     self.numeric_statistics_min_label, self.numeric_statistics_max_label,
+                     self.numeric_statistics_std_label)
         self.connect("refresh-all", self.preprocess_manager.load_combo_box_attributes,
                      self.attributes_combo_box)
         self.connect("refresh-all", self.preprocess_manager.load_attributes_tree_view,
@@ -303,7 +303,7 @@ class MainWindow (Gtk.Window):
 
         attributes_box.pack_start(attributes_scroll_tree, True, True, 0)
 
-        page_layout.attach(attributes_frame, 0, 2, 1, 2)
+        page_layout.attach(attributes_frame, 0, 2, 1, 3)
 
         # Selected attribute group***************************************************************************
         selected_attribute_frame = Gtk.Frame()
@@ -322,13 +322,7 @@ class MainWindow (Gtk.Window):
             'Missing': (0,1),
             'Distinct': (2,1),
             'Type': (0,2),
-            'Unique': (2,2),
-            'Mean': (0,3),
-            'Median': (2,3),
-            'Mode': (0,4),
-            'Min': (2,4),
-            'Max': (0,5),
-            'Stand. Dev': (2,5)
+            'Unique': (2,2)
         }
 
         for k, v in attribute_statistics_labels.iteritems():
@@ -342,27 +336,12 @@ class MainWindow (Gtk.Window):
         selected_attribute_statistics_labels_grid.attach(self.selected_attribute_statistics_type_label, 1, 2, 1, 1)
         selected_attribute_statistics_labels_grid.attach(self.selected_attribute_statistics_unique_label, 3, 2, 1, 1)
 
-        selected_attribute_statistics_labels_grid.attach(self.selected_attribute_statistics_mean_label, 1, 3, 1, 1)
-        selected_attribute_statistics_labels_grid.attach(self.selected_attribute_statistics_median_label, 3, 3, 1, 1)
-
-        selected_attribute_statistics_labels_grid.attach(self.selected_attribute_statistics_mode_label, 1, 4, 1, 1)
-        selected_attribute_statistics_labels_grid.attach(self.selected_attribute_statistics_min_label, 3, 4, 1, 1)
-
-        selected_attribute_statistics_labels_grid.attach(self.selected_attribute_statistics_max_label, 1, 5, 1, 1)
-        selected_attribute_statistics_labels_grid.attach(self.selected_attribute_statistics_std_label, 3, 5, 1, 1)
-
         # Attribute statistics ***************
         self.selected_attribute_statistics_name_label.set_halign(Gtk.Align.START)
         self.selected_attribute_statistics_missing_label.set_halign(Gtk.Align.START)
         self.selected_attribute_statistics_distinct_label.set_halign(Gtk.Align.START)
         self.selected_attribute_statistics_type_label.set_halign(Gtk.Align.START)
         self.selected_attribute_statistics_unique_label.set_halign(Gtk.Align.START)
-        self.selected_attribute_statistics_mean_label.set_halign(Gtk.Align.START)
-        self.selected_attribute_statistics_median_label.set_halign(Gtk.Align.START)
-        self.selected_attribute_statistics_mode_label.set_halign(Gtk.Align.START)
-        self.selected_attribute_statistics_min_label.set_halign(Gtk.Align.START)
-        self.selected_attribute_statistics_max_label.set_halign(Gtk.Align.START)
-        self.selected_attribute_statistics_std_label.set_halign(Gtk.Align.START)
 
         selected_attribute_box.pack_start(selected_attribute_statistics_labels_grid, False, False, 0)
 
@@ -387,6 +366,50 @@ class MainWindow (Gtk.Window):
 
         page_layout.attach(class_attribute_frame, 1, 1, 1, 1)
 
+        # Numeric statistics group *************************************************************************
+
+        numeric_statistics_frame = Gtk.Frame()
+        numeric_statistics_frame.set_label("Numeric statistics")
+
+        # Attribute statistics
+        numeric_statistics_labels_grid = Gtk.Grid()
+        numeric_statistics_labels_grid.set_border_width(5)
+        numeric_statistics_labels_grid.set_column_homogeneous(True)
+        numeric_statistics_labels_grid.set_row_homogeneous(True)
+
+        numeric_statistics_labels = {
+            'Mean': (0, 0),
+            'Median': (3, 0),
+            'Mode': (0, 1),
+            'Min': (3, 1),
+            'Max': (0, 2),
+            'Stand. Dev': (3, 2)
+        }
+
+        for k, v in numeric_statistics_labels.iteritems():
+            label = Gtk.Label(k + ': ')
+            label.set_halign(Gtk.Align.START)
+            numeric_statistics_labels_grid.attach(label, v[0], v[1], 1, 1)
+
+        numeric_statistics_labels_grid.attach(self.numeric_statistics_mean_label, 1, 0, 2, 1)
+        numeric_statistics_labels_grid.attach(self.numeric_statistics_median_label, 4, 0, 2, 1)
+
+        numeric_statistics_labels_grid.attach(self.numeric_statistics_mode_label, 1, 1, 2, 1)
+        numeric_statistics_labels_grid.attach(self.numeric_statistics_min_label, 4, 1, 2, 1)
+
+        numeric_statistics_labels_grid.attach(self.numeric_statistics_max_label, 1, 2, 2, 1)
+        numeric_statistics_labels_grid.attach(self.numeric_statistics_std_label, 4, 2, 2, 1)
+
+        self.numeric_statistics_mean_label.set_halign(Gtk.Align.START)
+        self.numeric_statistics_median_label.set_halign(Gtk.Align.START)
+        self.numeric_statistics_mode_label.set_halign(Gtk.Align.START)
+        self.numeric_statistics_min_label.set_halign(Gtk.Align.START)
+        self.numeric_statistics_max_label.set_halign(Gtk.Align.START)
+        self.numeric_statistics_std_label.set_halign(Gtk.Align.START)
+
+        numeric_statistics_frame.add(numeric_statistics_labels_grid)
+
+        page_layout.attach(numeric_statistics_frame, 1, 4, 1, 1)
         # Status Group **************************************************************************************
         '''status_frame = Gtk.Frame()
         status_frame.set_label("Status")
