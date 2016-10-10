@@ -29,7 +29,7 @@ class MainWindow (Gtk.Window):
         Gtk.Window.__init__(self, title="Lil Jarvis")
 
         # Csv
-        self.preprocess_manager = PreprocessManager()
+        self.preprocess_manager = PreprocessManager(self)
 
         # Main window style properties
         self.set_border_width(10)
