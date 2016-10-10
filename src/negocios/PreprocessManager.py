@@ -20,6 +20,7 @@ class PreprocessManager:
 
     def set_file(self, widget, *data):
         self.csv.load_file(data[0])
+        self.parent.edit_undo.set_sensitive(False)
 
     def set_data_in_table(self, selection, *data):
         model, row = selection.get_selection().get_selected()
