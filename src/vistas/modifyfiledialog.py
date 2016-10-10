@@ -86,7 +86,7 @@ class ModifyFileDialog(Gtk.Dialog):
                 return
 
             #FIXME: fix this thing
-            if change == '' or change.isspace() or change == None:
+            if change == '' or change.isspace() or change == None or change == constants.NO_MRKUP_DATA_SYMBOL:
                 change = constants.MISSING_DATA_SYMBOL
 
             attribute_name = self.parent.preprocess_manager.csv.headers[column-1]
@@ -115,10 +115,10 @@ class ModifyFileDialog(Gtk.Dialog):
                 delete_rows.append(i)
 
         for i, row in enumerate(add_rows):
-            add_rows[i] = [re.sub(constants.SPAN_MARKUP_REGEXP, "", item) for item in row]
+            add_rows[i] = [re.sub(constants.SPAN_MARKUP_REGEXP, "", x) for x in row]
 
         for k, v in modify_rows.iteritems():
-            modify_rows[k] = [re.sub(constants.SPAN_MARKUP_REGEXP, "", item) for item in v]
+            modify_rows[k] = [re.sub(constants.SPAN_MARKUP_REGEXP, "", x) for x in v]
 
         self.parent.preprocess_manager.add_rows(add_rows)
         self.parent.preprocess_manager.modify_rows(modify_rows)

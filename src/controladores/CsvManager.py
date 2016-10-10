@@ -164,7 +164,8 @@ class CsvManager:
 
         writer.writerow(self.headers)
         for item in self.data:
-            writer.writerow(item)
+            clean_item = [x.replace(constants.MISSING_DATA_SYMBOL, "") for x in item]
+            writer.writerow(clean_item)
 
         path_name = str.split(file_path, '.')[0]
 
