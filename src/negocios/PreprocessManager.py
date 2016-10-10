@@ -15,11 +15,12 @@ from vistas.errordialog import ErrorDialog
 class PreprocessManager:
     csv = CsvManager()
 
-    def __init__(self):
-        pass
+    def __init__(self, parent):
+        self.parent = parent
 
     def set_file(self, widget, *data):
-        self.csv.load_file(data[0])
+        if self.csv.load_file(data[0]):
+            self.parent.edit_undo.set_sensitive(False)
 
     def set_data_in_table(self, selection, *data):
         model, row = selection.get_selection().get_selected()
@@ -113,7 +114,8 @@ class PreprocessManager:
         labels[3].set_text("{0:.1f}".format(instances))
 
     def remove_attribute(self, widget, *args):
-        self.csv.delete_attribute(args[0])
+        if self.csv.delete_attribute(args[0]):
+            self.parent.emit('registers-edited')
 
     def set_attribute_info(self, *args):
         model, row = args[0].get_selection().get_selected()
@@ -202,17 +204,20 @@ class PreprocessManager:
             tree_view.append_column(column)
 
     def delete_rows(self, rows):
-        self.csv.delete_tuples(rows)
+        if self.csv.delete_tuples(rows):
+            self.parent.emit('registers-edited')
 
     def add_rows(self, rows):
-        self.csv.add_tuples(rows)
+        if self.csv.add_tuples(rows):
+            self.parent.emit('registers-edited')
 
     def modify_rows(self, rows):
-        self.csv.fill_tuples(rows)
+        if self.csv.fill_tuples(rows):
+            self.parent.emit('registers-edited')
 
     def set_attribute_domain(self, widget, regexp, attribute, row, view):
         if self.csv.set_domain(regexp, attribute):
-            pass
+            self.parent.emit('registers-edited')
         else:
             ErrorDialog("Error", "Invalid regular expression", None)
 

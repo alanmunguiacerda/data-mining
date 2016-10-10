@@ -36,7 +36,7 @@ class CsvManager:
 
     def load_file(self, filename):
         if not filename:
-            return
+            return False
 
         try:
             loaded_file = open(filename, 'rU')
