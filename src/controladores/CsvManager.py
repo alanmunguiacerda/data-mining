@@ -256,6 +256,20 @@ class CsvManager:
 
         return nums
 
+    def get_string_items(self, attribute_name):
+        try:
+            index_found = self.headers.index(attribute_name)
+        except exceptions.Exception:
+            return False
+
+        try:
+            strings = [x[index_found] for x in self.data]
+        except ValueError:
+            return False
+
+        return strings
+
+
     def get_mean(self, attribute_name):
         nums = self.get_numeric_items(attribute_name)
         if not nums:
@@ -269,11 +283,13 @@ class CsvManager:
         return numpy.median(nums)
 
     def get_mode(self, attribute_name):
-        nums = self.get_numeric_items(attribute_name)
-        if not nums:
+        data = self.get_numeric_items(attribute_name)
+        if not data:
+            data = self.get_string_items(attribute_name)
+        if not data:
             return []
 
-        hist = collections.Counter(nums)
+        hist = collections.Counter(data)
         maxRepeat = hist.most_common(1)[0][1]
         return [x[0] for x in hist.most_common() if x[1] == maxRepeat and x[1] > 1]
 
