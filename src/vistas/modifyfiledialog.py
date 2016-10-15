@@ -9,7 +9,7 @@ from gi.repository import Gtk
 
 class ModifyFileDialog(Gtk.Dialog):
     def __init__(self, parent):
-        Gtk.Dialog.__init__(self, "Modify registers", parent, Gtk.DialogFlags.MODAL,
+        Gtk.Dialog.__init__(self, "Modify registers", None, Gtk.DialogFlags.MODAL,
                             (Gtk.STOCK_CANCEL, Gtk.ResponseType.CANCEL,
                              Gtk.STOCK_OK, Gtk.ResponseType.OK))
 
@@ -125,4 +125,4 @@ class ModifyFileDialog(Gtk.Dialog):
         self.parent.preprocess_manager.delete_rows(delete_rows)
 
         self.parent.preprocess_manager.csv.check_all_domains()
-        self.parent.emit('refresh-all', 'DummyData')
+        self.parent.emit('refresh-all')

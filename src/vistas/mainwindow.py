@@ -459,7 +459,7 @@ class MainWindow (Gtk.Window):
 
         if response == Gtk.ResponseType.OK:
             self.text_box.set_text(dialog.get_filename())
-            if type(widget).__name__ == 'MenuItem':
+            if type(widget) == Gtk.MenuItem:
                 self.on_open_file_clicked(widget)
 
         dialog.destroy()

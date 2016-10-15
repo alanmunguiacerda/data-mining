@@ -2,12 +2,17 @@
 # -*- coding: utf-8 -*-
 
 import gi
+import os
 
 gi.require_version('Gtk', '3.0')
 from gi.repository import Gtk
+from gi.repository import GObject
 
 from src.vistas.BaseTab import BaseTab
+from src.vistas.errordialog import ErrorDialog
 from src.negocios.PreprocessManager import PreprocessManager
+from src.vistas.DomainPopup import DomainPopup
+from src.vistas.modifyfiledialog import ModifyFileDialog
 
 class PreprocessTab(BaseTab):
     def __init__(self, parent):
@@ -29,18 +34,66 @@ class PreprocessTab(BaseTab):
         self.set_connections()
 
     def set_signals(self):
-        pass
+        GObject.signal_new('file-path-ready', self, GObject.SIGNAL_RUN_LAST, GObject.TYPE_PYOBJECT,
+                           (GObject.TYPE_PYOBJECT,))
+        GObject.signal_new('after-file-loaded', self, GObject.SIGNAL_RUN_LAST, GObject.TYPE_PYOBJECT,
+                           ())
+        GObject.signal_new('reg-exp-ready', self, GObject.SIGNAL_RUN_LAST, GObject.TYPE_PYOBJECT,
+                           (GObject.TYPE_PYOBJECT, GObject.TYPE_PYOBJECT, Gtk.TreeIter))
+        GObject.signal_new('refresh-all', self, GObject.SIGNAL_RUN_LAST, GObject.TYPE_PYOBJECT,
+                           ())
+        GObject.signal_new('registers-edited', self, GObject.SIGNAL_RUN_LAST, GObject.TYPE_PYOBJECT,
+                           ())
 
     def set_connections(self):
-        pass
+        self.buttons['file_select'].connect('clicked', self.on_open_file_menu)
+        self.buttons['file_open'].connect('clicked', self.on_open_file_clicked)
+
+        self.connect("after-file-loaded", self.preprocess_manager.clean_attributes_widgets,
+                     self.tree_views, self.combo_boxes, self.labels)
+        self.connect("after-file-loaded", self.parent.enable_save_edit_file)
+        self.connect("file-path-ready", self.preprocess_manager.set_file, self.parent.menu_options['edit_undo'])
+        self.connect("after-file-loaded", self.preprocess_manager.load_combo_box_attributes,
+                     self.combo_boxes['class_attribute'])
+        self.connect("after-file-loaded", self.preprocess_manager.load_attributes_tree_view,
+                     self.tree_views['attributes_list'])
+        self.connect("after-file-loaded", self.preprocess_manager.set_file_info, self.labels)
+        self.connect("after-file-loaded", self.toggle_attributes_buttons, False)
+
+        self.tree_views['attributes_list'].connect("cursor-changed",
+                                          self.preprocess_manager.set_data_in_table,
+                                          self.tree_views['selected_attribute_list'])
+
+        self.tree_views['attributes_list'].connect("cursor-changed",
+                                          self.preprocess_manager.set_attribute_info,
+                                          self.labels)
+
+        self.tree_views['attributes_list'].connect("cursor-changed", self.toggle_attributes_buttons, True)
+
+        self.buttons['attributes_remove'].connect("clicked", self.on_remove_attribute_clicked)
+        self.buttons['attributes_regex'].connect("clicked", self.on_regexp_clicked)
+
+        self.connect('reg-exp-ready', self.preprocess_manager.set_attribute_domain,
+                     self.tree_views['attributes_list'])
+
+        self.connect("refresh-all", self.preprocess_manager.clean_attributes_widgets,
+                     self.tree_views, self.combo_boxes, self.labels)
+        self.connect("refresh-all", self.preprocess_manager.load_combo_box_attributes,
+                     self.combo_boxes['class_attribute'])
+        self.connect("refresh-all", self.preprocess_manager.load_attributes_tree_view,
+                     self.tree_views['attributes_list'])
+        self.connect("refresh-all", self.preprocess_manager.set_file_info, self.labels)
+
+        # Registers edited sets undo active
+        self.connect('registers-edited', self.parent.on_registers_edited)
 
     def attach_all_to_layout(self):
         self.page_layout.attach(self.boxes['open_file'], 0, 0, 2, 1)
         self.page_layout.attach(self.frames['file_info'], 0, 1, 1, 1)
         self.page_layout.attach(self.frames['class_attribute'], 1, 1, 1, 1)
-        self.page_layout.attach(self.frames['attributes_list'], 0, 2, 1, 4)
+        self.page_layout.attach(self.frames['attributes_list'], 0, 2, 1, 3)
         self.page_layout.attach(self.frames['selected_attribute'], 1, 2, 1, 3)
-        self.page_layout.attach(self.frames['selected_attribute_statistics'], 1, 5, 1, 1)
+        self.page_layout.attach(self.frames['selected_attribute_statistics'], 0, 5, 2, 1)
 
     def create_selected_attribute_frame(self):
         frame = self.create_frame('selected_attribute' ,'Selected attribute')
@@ -120,3 +173,81 @@ class PreprocessTab(BaseTab):
         self.combo_boxes['class_attribute'].set_border_width(5)
 
         frame.add(self.combo_boxes['class_attribute'])
+
+    def on_open_file_clicked(self, widget):
+        string = self.text_inputs['file_path'].get_text()
+
+        if string and string.strip() and string.endswith('.csv'):
+            if os.path.isfile(string):
+                self.emit('file-path-ready', self.text_inputs['file_path'].get_text())
+                self.emit('after-file-loaded')
+            else:
+                ErrorDialog("Error", "File not found", None)
+
+    def on_open_file_menu(self, widget):
+        dialog = Gtk.FileChooserDialog("Select a file: ", None, Gtk.FileChooserAction.OPEN,
+                                       (Gtk.STOCK_CANCEL, Gtk.ResponseType.CANCEL,
+                                        Gtk.STOCK_OPEN, Gtk.ResponseType.OK))
+
+        filter = Gtk.FileFilter()
+        filter.add_pattern("*.csv")
+        dialog.set_filter(filter)
+        response = dialog.run()
+
+        if response == Gtk.ResponseType.OK:
+            self.text_inputs['file_path'].set_text(dialog.get_filename())
+            if type(widget).__name__ == 'MenuItem':
+                self.on_open_file_clicked(widget)
+                pass
+        dialog.destroy()
+
+    def toggle_attributes_buttons(self, widget, sensitive):
+        self.buttons['attributes_remove'].set_sensitive(sensitive)
+        self.buttons['attributes_regex'].set_sensitive(sensitive)
+
+    def on_remove_attribute_clicked(self, widget):
+        model, row = self.tree_views['attributes_list'].get_selection().get_selected()
+        if not row:
+            return
+        self.preprocess_manager.remove_attribute(model[row][1])
+        self.emit('refresh-all')
+
+    def on_regexp_clicked(self, widget):
+        model, row = self.tree_views['attributes_list'].get_selection().get_selected()
+        if not row:
+            return
+        attribute_name = model[row][1]
+
+        dialog = DomainPopup(self, attribute_name)
+
+        response = dialog.run()
+
+        if response == Gtk.ResponseType.OK and attribute_name:
+            self.emit('reg-exp-ready', dialog.get_regexp(), attribute_name, row)
+
+        dialog.destroy()
+
+    def on_edit_registers(self, widget):
+        dialog = ModifyFileDialog(self)
+
+        response = dialog.run()
+
+        if response == Gtk.ResponseType.OK:
+            dialog.commit()
+            self.preprocess_manager.set_file_info(None, self.labels)
+
+        dialog.destroy()
+
+    def on_save_file_menu(self, widget):
+        dialog = Gtk.FileChooserDialog("Save file as: ", None,
+                                       Gtk.FileChooserAction.SAVE,
+                                       (Gtk.STOCK_CANCEL,
+                                        Gtk.ResponseType.CANCEL,
+                                        Gtk.STOCK_SAVE, Gtk.ResponseType.OK))
+
+        response = dialog.run()
+
+        if response == Gtk.ResponseType.OK:
+            self.preprocess_manager.save_file(dialog.get_filename())
+
+        dialog.destroy()

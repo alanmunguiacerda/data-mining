@@ -18,9 +18,9 @@ class PreprocessManager:
     def __init__(self, parent):
         self.parent = parent
 
-    def set_file(self, widget, *data):
-        if self.csv.load_file(data[0]):
-            self.parent.edit_undo.set_sensitive(False)
+    def set_file(self, widget, file_name, edit_undo):
+        if self.csv.load_file(file_name):
+            edit_undo.set_sensitive(False)
 
     def set_data_in_table(self, selection, *data):
         model, row = selection.get_selection().get_selected()
@@ -55,15 +55,15 @@ class PreprocessManager:
     def save_file(self, path):
         self.csv.save_version(path)
 
-    def load_combo_box_attributes(self, *args):
+    def load_combo_box_attributes(self, widget, combo_box):
         headers_list = self.csv.headers
 
         for var in headers_list:
-            args[2].append_text(var)
+            combo_box.append_text(var)
 
-        args[2].set_active(0)
+        combo_box.set_active(0)
 
-    def load_attributes_tree_view(self, *args):
+    def load_attributes_tree_view(self, widget, tree):
         headers_list = self.csv.headers
 
         list_store = Gtk.ListStore(GObject.TYPE_INT, GObject.TYPE_STRING,
@@ -75,50 +75,50 @@ class PreprocessManager:
                                '<span foreground="'+valid[0]+'">' + valid[1] + '</span>',
                                self.csv.get_domain(var)])
 
-        args[2].set_model(list_store)
+        tree.set_model(list_store)
 
         for i, col_title in enumerate(["Number", "Attribute", "Status", "Domain"]):
             renderer = Gtk.CellRendererText()
             column = Gtk.TreeViewColumn(col_title, renderer, markup=i)
 
             # Add columns to TreeView
-            args[2].append_column(column)
+            tree.append_column(column)
 
-    def clean_attributes_widgets(self, *args):
+    def clean_attributes_widgets(self, widget, trees, combo_boxes, labels):
         # Tree view cleaning
-        columns = args[2].get_columns()
+        columns = trees['attributes_list'].get_columns()
         for column in columns:
-            args[2].remove_column(column)
+            trees['attributes_list'].remove_column(column)
+
+        columns = trees['selected_attribute_list'].get_columns()
+        for column in columns:
+            trees['selected_attribute_list'].remove_column(column)
 
         # Combo box cleaning
-        args[3].remove_all()
+        combo_boxes['class_attribute'].remove_all()
 
-        # Tree view cleaning
-        columns = args[4].get_columns()
-        for column in columns:
-            args[4].remove_column(column)
+        for k, v in labels.iteritems():
+            if 'file' in k:
+                continue
+            v.set_text('')
 
-        for i in range(5, 16):
-            args[i].set_label("")
 
-    def set_file_info(self, widget, *args):
-        labels = [x for x in args if type(x).__name__ == 'Label']
-
+    def set_file_info(self, widget, labels):
         _, filename = ntpath.split(self.csv.filename)
         filename = filename.split('.')[0]
 
-        labels[0].set_text(filename)
-        labels[1].set_text(str(len(self.csv.headers)))
+        labels['file_info_name'].set_text(filename)
+        labels['file_info_attributes'].set_text(str(len(self.csv.headers)))
         instances = len(self.csv.data)
-        labels[2].set_text(str(instances))
-        labels[3].set_text("{0:.1f}".format(instances))
+        labels['file_info_instances'].set_text(str(instances))
+        labels['file_info_weights'].set_text("{0:.1f}".format(instances))
 
-    def remove_attribute(self, widget, *args):
-        if self.csv.delete_attribute(args[0]):
+    def remove_attribute(self, attribute_name):
+        if self.csv.delete_attribute(attribute_name):
             self.parent.emit('registers-edited')
 
-    def set_attribute_info(self, *args):
-        model, row = args[0].get_selection().get_selected()
+    def set_attribute_info(self, widget, labels):
+        model, row = widget.get_selection().get_selected()
 
         if not row:
             return
@@ -126,14 +126,14 @@ class PreprocessManager:
         attribute_name = model[row][1]
         counters = self.csv.get_index_counters(attribute_name)
         # Attribute name label
-        args[1].set_label(attribute_name)
+        labels['attribute_name'].set_label(attribute_name)
 
         # Missing
         missing = self.csv.missing_values(attribute_name)
-        args[2].set_label(str(missing) + "( " + str((missing * 100) / len(self.csv.data)) + "% )")
+        labels['attribute_missing'].set_label(str(missing) + "( " + str((missing * 100) / len(self.csv.data)) + "% )")
 
         # Distinct label
-        args[3].set_label(str(len(counters)))
+        labels['attribute_distinct'].set_label(str(len(counters)))
 
         unique_count = 0
         numeric = True
@@ -145,24 +145,24 @@ class PreprocessManager:
 
         # Type label
         if len(counters) is 2:
-            args[4].set_label("Binary")
+            labels['attribute_type'].set_label("Binary")
         else:
-            args[4].set_label("Numeric" if numeric else "Nominal")
+            labels['attribute_type'].set_label("Numeric" if numeric else "Nominal")
         # Unique label
-        args[5].set_label(str(unique_count) + "( " + str((unique_count * 100) / len(self.csv.data)) + "% )")
+            labels['attribute_unique'].set_label(str(unique_count) + "( " + str((unique_count * 100) / len(self.csv.data)) + "% )")
 
         # Mean
-        args[6].set_label('{!s}'.format(self.csv.get_mean(attribute_name)))
+        labels['attribute_mean'].set_label('{!s}'.format(self.csv.get_mean(attribute_name)))
         # Median
-        args[7].set_label('{!s}'.format(self.csv.get_median(attribute_name)))
+        labels['attribute_median'].set_label('{!s}'.format(self.csv.get_median(attribute_name)))
         # Mode
-        args[8].set_label('{!s}'.format(self.csv.get_mode(attribute_name)))
+        labels['attribute_mode'].set_label('{!s}'.format(self.csv.get_mode(attribute_name)))
         # Min
-        args[9].set_label('{!s}'.format(self.csv.get_min(attribute_name)))
+        labels['attribute_min'].set_label('{!s}'.format(self.csv.get_min(attribute_name)))
         # Max
-        args[10].set_label('{!s}'.format(self.csv.get_max(attribute_name)))
+        labels['attribute_max'].set_label('{!s}'.format(self.csv.get_max(attribute_name)))
         # Std
-        args[11].set_label('{!s}'.format(self.csv.get_standard_deviation(attribute_name)))
+        labels['attribute_stand_dev'].set_label('{!s}'.format(self.csv.get_standard_deviation(attribute_name)))
 
     def set_file_in_table(self, tree_view, modify_cell):
         headers = ["Action"]
@@ -228,9 +228,9 @@ class PreprocessManager:
         else:
             model.set_value(row, 2, '<span foreground="green">Correct</span>')
 
-    def undo(self, widget, window):
+    def undo(self, widget, window, edit_undo):
         if len(self.csv.dataVersions) > 0:
             self.csv.rollback()
-            window.emit('refresh-all', "DummyData")
+            window.emit('refresh-all')
         if len(self.csv.dataVersions) < 1:
-            window.edit_undo.set_sensitive(False)
+            edit_undo.set_sensitive(False)
