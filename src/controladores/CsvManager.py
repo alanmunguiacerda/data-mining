@@ -73,6 +73,7 @@ class CsvManager:
             new_version['headers'] = copy.deepcopy(self.headers)
         if domains:
             new_version['domains'] = copy.deepcopy(self.domains)
+            new_version['wrong_registers'] = copy.deepcopy(self.wrong_registers)
         if len(new_version) > 0:
             self.dataVersions.append(new_version)
 
@@ -87,6 +88,8 @@ class CsvManager:
         if 'domains' in past_version:
             self.domains.clear()
             self.domains = past_version['domains']
+        if 'wrong_registers' in past_version:
+            self.wrong_registers = past_version['wrong_registers']
         return True
 
     def delete_attribute(self, attribute_name):
@@ -158,7 +161,6 @@ class CsvManager:
         return uniques
 
     def save_version(self, file_path):
-        #TODO: verify that the data doesn't have <lbl></lbl>
         new_file = open(file_path, 'wb')
         writer = csv.writer(new_file)
 
@@ -220,17 +222,12 @@ class CsvManager:
 
         if attribute_name in self.domains:
             domain = self.domains[attribute_name]
-            i = 0
-            for elem in self.data:
+            for i, elem in enumerate(self.data):
                 if re.match(domain, elem[index]) is None:
-                    if attribute_name in self.wrong_registers:
-                        registers_list = self.wrong_registers[attribute_name]
-                    else:
-                        registers_list = []
-                        self.wrong_registers[attribute_name] = registers_list
+                    if not attribute_name in self.wrong_registers:
+                        self.wrong_registers[attribute_name] = []
 
-                    registers_list.append(i)
-                i += 1
+                    self.wrong_registers[attribute_name].append(i)
 
     def check_all_domains(self):
         for elem in self.domains:
@@ -263,7 +260,7 @@ class CsvManager:
             return False
 
         try:
-            strings = [x[index_found] for x in self.data]
+            strings = [x[index_found] for x in self.data if x[index_found] != constants.MISSING_DATA_SYMBOL]
         except ValueError:
             return False
 
@@ -291,6 +288,7 @@ class CsvManager:
 
         hist = collections.Counter(data)
         maxRepeat = hist.most_common(1)[0][1]
+
         return [x[0] for x in hist.most_common() if x[1] == maxRepeat and x[1] > 1]
 
     def get_max(self, attribute_name):

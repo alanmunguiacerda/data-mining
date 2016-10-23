@@ -73,7 +73,8 @@ class BaseTab(Gtk.Box):
 
         return new_grid
 
-    def insert_static_label_data_label(self, grid_name, static_labels, data_labels, columns = 2, data_lbl_width = 3):
+    def insert_static_label_data_label(self, grid_name, static_labels, data_labels, extras = [],
+                                       columns = 2, data_col_width = 3):
         if not grid_name in self.grids:
             return False
 
@@ -86,10 +87,12 @@ class BaseTab(Gtk.Box):
             static_label.set_halign(Gtk.Align.START)
             self.labels[dt_lb].set_halign(Gtk.Align.START)
 
-            self.grids[grid_name].attach(static_label, c*data_lbl_width, r, 1, 1)
-            self.grids[grid_name].attach(self.labels[dt_lb], c*data_lbl_width+1, r, 2, 1)
+            self.grids[grid_name].attach(static_label, c*data_col_width, r, 1, 1)
+            cols = (data_col_width-1, (data_col_width-1)*columns)[dt_lb in extras]
+            self.grids[grid_name].attach(self.labels[dt_lb], c*data_col_width+1, r, cols, 1)
+
             c += 1
-            if c >= columns:
+            if c >= columns or dt_lb in extras:
                 (c, r) = (0, r+1)
 
     def insert_buttons(self, parent, buttons_names, buttons_labels):

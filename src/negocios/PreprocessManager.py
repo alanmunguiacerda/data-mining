@@ -138,9 +138,9 @@ class PreprocessManager:
         unique_count = 0
         numeric = True
         for k, v in counters.iteritems():
-            if v is 1:
+            if v == 1:
                 unique_count += 1
-            if not k.replace('.', '', 1).isdigit():
+            if self.csv.check_type(k) is str:
                 numeric = False
 
         # Type label
@@ -156,7 +156,11 @@ class PreprocessManager:
         # Median
         labels['attribute_median'].set_label('{!s}'.format(self.csv.get_median(attribute_name)))
         # Mode
-        labels['attribute_mode'].set_label('{!s}'.format(self.csv.get_mode(attribute_name)))
+        mode = ' '.join(str(x)+', ' for x in self.csv.get_mode(attribute_name))
+        if len(mode) > 15:
+            labels['attribute_mode'].set_label(mode[0:15]+'...')
+        else:
+            labels['attribute_mode'].set_label(mode)
         # Min
         labels['attribute_min'].set_label('{!s}'.format(self.csv.get_min(attribute_name)))
         # Max
@@ -181,7 +185,7 @@ class PreprocessManager:
                     except exceptions.Exception:
                         index = -1
 
-                    if index is not -1:
+                    if index != -1:
                         item[j] = '<span background="red" foreground="white">' + item[j] + '</span>'
             item.insert(0, "")
 
@@ -220,6 +224,7 @@ class PreprocessManager:
             self.parent.emit('registers-edited')
         else:
             ErrorDialog("Error", "Invalid regular expression", None)
+            return False
 
         model = view.get_model()
         model.set_value(row, 3, regexp)

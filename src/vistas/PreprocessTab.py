@@ -91,9 +91,9 @@ class PreprocessTab(BaseTab):
         self.page_layout.attach(self.boxes['open_file'], 0, 0, 2, 1)
         self.page_layout.attach(self.frames['file_info'], 0, 1, 1, 1)
         self.page_layout.attach(self.frames['class_attribute'], 1, 1, 1, 1)
-        self.page_layout.attach(self.frames['attributes_list'], 0, 2, 1, 3)
+        self.page_layout.attach(self.frames['attributes_list'], 0, 2, 1, 4)
         self.page_layout.attach(self.frames['selected_attribute'], 1, 2, 1, 3)
-        self.page_layout.attach(self.frames['selected_attribute_statistics'], 0, 5, 2, 1)
+        self.page_layout.attach(self.frames['selected_attribute_statistics'], 1, 5, 1, 1)
 
     def create_selected_attribute_frame(self):
         frame = self.create_frame('selected_attribute' ,'Selected attribute')
@@ -103,9 +103,10 @@ class PreprocessTab(BaseTab):
         attribute_statistics_labels = ['Name', 'Missing', 'Distinct', 'Type', 'Unique']
         attribute_data_labels = ['attribute_name', 'attribute_missing', 'attribute_distinct',
                                  'attribute_type', 'attribute_unique']
+        extras = ['attribute_name']
 
         self.insert_static_label_data_label('selected_attribute', attribute_statistics_labels,
-                                            attribute_data_labels)
+                                            attribute_data_labels, extras, 3, 2)
 
         self.insert_scrollable_tree_view(box, 'selected_attribute_list')
 
@@ -146,8 +147,10 @@ class PreprocessTab(BaseTab):
         file_info_static_labels = ['Name', 'Weights', 'Instances', 'Attributes']
         file_info_data_labels = ['file_info_name', 'file_info_weights',
                                  'file_info_instances', 'file_info_attributes']
+        extras = ['file_info_name']
 
-        self.insert_static_label_data_label('file_info', file_info_static_labels, file_info_data_labels)
+        self.insert_static_label_data_label('file_info', file_info_static_labels,
+                                            file_info_data_labels, extras, 3, 2)
 
     def create_file_attributes_frame(self):
         attributes_list_frame = self.create_frame('attributes_list', 'Attributes')
