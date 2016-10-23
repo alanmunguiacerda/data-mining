@@ -9,10 +9,10 @@ from gi.repository import Gtk
 from gi.repository import GObject
 
 from src.vistas.BaseTab import BaseTab
-from src.vistas.errordialog import ErrorDialog
+from src.vistas.ErrorDialog import ErrorDialog
 from src.negocios.PreprocessManager import PreprocessManager
 from src.vistas.DomainPopup import DomainPopup
-from src.vistas.modifyfiledialog import ModifyFileDialog
+from src.vistas.ModifyFileDialog import ModifyFileDialog
 
 class PreprocessTab(BaseTab):
     def __init__(self, parent):

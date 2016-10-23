@@ -7,7 +7,7 @@ gi.require_version('Gtk', '3.0')
 from gi.repository import Gtk
 from PreprocessTab import PreprocessTab
 
-class MainWindow2(Gtk.Window):
+class MainWindow(Gtk.Window):
     def __init__(self):
         Gtk.Window.__init__(self, title="Litul' Yarvis")
 

@@ -9,7 +9,7 @@ gi.require_version('Gtk', '3.0')
 from gi.repository import Gtk
 from gi.repository import GObject
 from controladores.CsvManager import CsvManager
-from vistas.errordialog import ErrorDialog
+from vistas.ErrorDialog import ErrorDialog
 
 
 class PreprocessManager:
