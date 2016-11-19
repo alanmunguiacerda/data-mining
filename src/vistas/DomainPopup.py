@@ -7,7 +7,7 @@ from gi.repository import Gtk
 class DomainPopup(Gtk.Dialog):
 
     def __init__(self, parent, attribute_name):
-        Gtk.Dialog.__init__(self, "Define regular expression", parent, Gtk.DialogFlags.MODAL,
+        Gtk.Dialog.__init__(self, "Define regular expression", None, Gtk.DialogFlags.MODAL,
                             (Gtk.STOCK_CANCEL, Gtk.ResponseType.CANCEL,
                              Gtk.STOCK_OK, Gtk.ResponseType.OK))
         self.set_default_size(200, 100)
