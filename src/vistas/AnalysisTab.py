@@ -37,10 +37,10 @@ class AnalysisTab(BaseTab):
         pass
 
     def attach_all_to_layout(self):
-        self.page_layout.attach(self.frames['data_table'], 0, 0, 4, 1)
-        self.page_layout.attach(self.frames['selectors'], 0, 1, 2, 1)
+        self.page_layout.attach(self.frames['data_table'], 0, 0, 3, 1)
+        self.page_layout.attach(self.frames['selectors'], 0, 1, 2, 2)
         self.page_layout.attach(self.frames['lev_results'], 2, 1, 1, 1)
-        self.page_layout.attach(self.frames['cor_results'], 3, 1, 1, 1)
+        self.page_layout.attach(self.frames['cor_results'], 2, 2, 1, 1)
 
     def create_data_table(self):
         frame = self.create_frame('data_table', 'Data')
@@ -56,6 +56,9 @@ class AnalysisTab(BaseTab):
         combo_boxes = ['instance_1', 'instance_2', 'attribute_1', 'attribute_2']
 
         self.insert_static_label_combo_box('selectors', attribute_statistics_labels, combo_boxes)
+
+        self.insert_buttons(box, ['calculate'], ['Calculate'])
+        self.insert_buttons(box, ['calculate'], ['Calculate'])
 
     def create_levenshtain_results(self):
         frame = self.create_frame('lev_results', 'Levenshtain')
