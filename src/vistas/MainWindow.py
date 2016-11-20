@@ -6,6 +6,7 @@ import gi
 gi.require_version('Gtk', '3.0')
 from gi.repository import Gtk
 from PreprocessTab import PreprocessTab
+from AnalysisTab import AnalysisTab
 
 class MainWindow(Gtk.Window):
     def __init__(self):
@@ -20,6 +21,7 @@ class MainWindow(Gtk.Window):
         self.create_notebook()
 
         self.create_pre_process_page()
+        self.create_analysis_page()
 
         self.set_connections()
 
@@ -49,6 +51,11 @@ class MainWindow(Gtk.Window):
         self.pre_process_page = PreprocessTab(self)
         self.pre_process_page.set_border_width(10)
         self.notebook.append_page(self.pre_process_page, Gtk.Label("Pre-process"))
+
+    def create_analysis_page(self):
+        self.analysis_page = AnalysisTab(self)
+        self.analysis_page.set_border_width(10)
+        self.notebook.append_page(self.analysis_page, Gtk.Label("Analysis"))
 
     def create_menu_bar(self):
         file_items = [('file_open','Open File', True),

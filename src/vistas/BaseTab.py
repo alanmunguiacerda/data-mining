@@ -95,6 +95,30 @@ class BaseTab(Gtk.Box):
             if c >= columns or dt_lb in extras:
                 (c, r) = (0, r+1)
 
+    def insert_static_label_combo_box(self, grid_name, static_labels, combo_box,
+                                           extras=[], columns=2, data_col_width=3):
+
+        if not grid_name in self.grids:
+            return False
+
+        (c, r) = (0, 0)
+        self.grids[grid_name].set_border_width(5)
+        for st_lb, cb_bx in zip(static_labels, combo_box):
+            static_label = Gtk.Label(st_lb + ': ')
+            self.combo_boxes[cb_bx] = Gtk.ComboBoxText()
+            self.combo_boxes[cb_bx].set_border_width(5)
+
+            static_label.set_halign(Gtk.Align.START)
+            self.combo_boxes[cb_bx].set_halign(Gtk.Align.START)
+
+            self.grids[grid_name].attach(static_label, c * data_col_width, r, 1, 1)
+            cols = (data_col_width - 1, (data_col_width - 1) * columns)[cb_bx in extras]
+            self.grids[grid_name].attach(self.combo_boxes[cb_bx], c * data_col_width + 1, r, cols, 1)
+
+            c += 1
+            if c >= columns or cb_bx in extras:
+                (c, r) = (0, r + 1)
+
     def insert_buttons(self, parent, buttons_names, buttons_labels):
         createdElements = []
         for name, label in zip(buttons_names, buttons_labels):
