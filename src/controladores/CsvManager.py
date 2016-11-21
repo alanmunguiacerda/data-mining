@@ -28,12 +28,12 @@ class CsvManager:
         pass
 
     def reset_shared(self):
-        del self.headers[:]
-        del self.data[:]
-        del self.dataVersions[:]
-        self.domains.clear()
-        self.wrong_registers.clear()
-        self.filename = None
+        del CsvManager.headers[:]
+        del CsvManager.data[:]
+        del CsvManager.dataVersions[:]
+        CsvManager.domains.clear()
+        CsvManager.wrong_registers.clear()
+        CsvManager.filename = None
         CsvManager.class_index = 0
 
     def load_file(self, filename):
