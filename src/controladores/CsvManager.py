@@ -27,12 +27,12 @@ class CsvManager:
         pass
 
     def reset_shared(self):
-        del self.headers[:]
-        del self.data[:]
-        del self.dataVersions[:]
-        self.domains.clear()
-        self.wrong_registers.clear()
-        self.filename = None
+        del CsvManager.headers[:]
+        del CsvManager.data[:]
+        del CsvManager.dataVersions[:]
+        CsvManager.domains.clear()
+        CsvManager.wrong_registers.clear()
+        CsvManager.filename = None
 
     def load_file(self, filename):
         if not filename:
@@ -44,67 +44,67 @@ class CsvManager:
             return False
 
         self.reset_shared()
-        self.filename = filename
+        CsvManager.filename = filename
         reader = csv.reader(loaded_file)
         for item in reader.next():
-            self.headers.append(item)
+            CsvManager.headers.append(item)
 
         for line in reader:
             for i, element in enumerate(line):
                 if not element or element.isspace():
                     line[i] = constants.MISSING_DATA_SYMBOL
-            self.data.append(line)
+            CsvManager.data.append(line)
 
         path_name = str.split(filename, '.')[0]
         try:
-            self.domains = self.load_obj(path_name)
+            CsvManager.domains = self.load_obj(path_name)
             self.check_all_domains()
         except exceptions.Exception:
-            self.domains = {}
+            CsvManager.domains = {}
 
         return True
 
     def new_version(self, data=False, headers=False, domains=False):
         new_version = {}
         if data:
-            new_version['data'] = copy.deepcopy(self.data)
+            new_version['data'] = copy.deepcopy(CsvManager.data)
         if headers:
-            new_version['headers'] = copy.deepcopy(self.headers)
+            new_version['headers'] = copy.deepcopy(CsvManager.headers)
         if domains:
-            new_version['domains'] = copy.deepcopy(self.domains)
-            new_version['wrong_registers'] = copy.deepcopy(self.wrong_registers)
+            new_version['domains'] = copy.deepcopy(CsvManager.domains)
+            new_version['wrong_registers'] = copy.deepcopy(CsvManager.wrong_registers)
         if len(new_version) > 0:
-            self.dataVersions.append(new_version)
+            CsvManager.dataVersions.append(new_version)
 
     def rollback(self):
-        past_version = self.dataVersions.pop()
+        past_version = CsvManager.dataVersions.pop()
         if 'data' in past_version:
-            del self.data[:]
-            self.data = past_version['data']
+            del CsvManager.data[:]
+            CsvManager.data = past_version['data']
         if 'headers' in past_version:
-            del self.headers[:]
-            self.headers = past_version['headers']
+            del CsvManager.headers[:]
+            CsvManager.headers = past_version['headers']
         if 'domains' in past_version:
-            self.domains.clear()
-            self.domains = past_version['domains']
+            CsvManager.domains.clear()
+            CsvManager.domains = past_version['domains']
         if 'wrong_registers' in past_version:
-            self.wrong_registers = past_version['wrong_registers']
+            CsvManager.wrong_registers = past_version['wrong_registers']
         return True
 
     def delete_attribute(self, attribute_name):
         try:
-            index_found = self.headers.index(attribute_name)
+            index_found = CsvManager.headers.index(attribute_name)
         except exceptions.Exception:
             return False
 
         self.new_version(data = True, headers=True, domains=True)
 
-        if attribute_name in self.domains:
-            del self.domains[attribute_name]
+        if attribute_name in CsvManager.domains:
+            del CsvManager.domains[attribute_name]
 
-        del self.headers[index_found]
+        del CsvManager.headers[index_found]
 
-        for row in self.data:
+        for row in CsvManager.data:
             del row[index_found]
 
         return True
@@ -118,7 +118,7 @@ class CsvManager:
         rows_index = sorted(rows_index, reverse=True)
         for index in rows_index:
             try:
-                del self.data[index]
+                del CsvManager.data[index]
             except IndexError:
                 pass
 
@@ -131,24 +131,24 @@ class CsvManager:
         self.new_version(data = True)
 
         for key, value in new_tuples.iteritems():
-            self.data[key] = value
+            CsvManager.data[key] = value
 
         return True
 
     def get_index_counters(self):
         count = {}
-        for i, header in enumerate(self.headers):
-            count[header] = collections.Counter(elem[i] for elem in self.data)
+        for i, header in enumerate(CsvManager.headers):
+            count[header] = collections.Counter(elem[i] for elem in CsvManager.data)
 
         return count
 
     def get_index_counters(self, attribute_name):
         try:
-            index = self.headers.index(attribute_name)
+            index = CsvManager.headers.index(attribute_name)
         except exceptions.Exception:
             return False
 
-        return collections.Counter(elem[index] for elem in self.data)
+        return collections.Counter(elem[index] for elem in CsvManager.data)
 
     def get_unique_attributes(self):
         count = self.get_index_counters()
@@ -163,23 +163,23 @@ class CsvManager:
         new_file = open(file_path, 'wb')
         writer = csv.writer(new_file)
 
-        writer.writerow(self.headers)
-        for item in self.data:
+        writer.writerow(CsvManager.headers)
+        for item in CsvManager.data:
             clean_item = [x.replace(constants.MISSING_DATA_SYMBOL, "") for x in item]
             writer.writerow(clean_item)
 
         path_name = str.split(file_path, '.')[0]
 
-        self.save_obj(self.domains, path_name)
+        self.save_obj(CsvManager.domains, path_name)
 
 
     def missing_values(self, attribute_name):
         try:
-            index = self.headers.index(attribute_name)
+            index = CsvManager.headers.index(attribute_name)
         except exceptions.Exception:
             return False
 
-        return sum(1 for i in self.data if i[index] == constants.MISSING_DATA_SYMBOL)
+        return sum(1 for i in CsvManager.data if i[index] == constants.MISSING_DATA_SYMBOL)
 
     def add_tuples(self, tuples):
         if not tuples or len(tuples) < 1:
@@ -188,7 +188,7 @@ class CsvManager:
         self.new_version(data=True)
 
         for tuple in tuples:
-            self.data.append(tuple)
+            CsvManager.data.append(tuple)
 
         return True
 
@@ -199,37 +199,37 @@ class CsvManager:
             return False
 
         self.new_version(domains=True)
-        self.domains[attribute] = regexp
+        CsvManager.domains[attribute] = regexp
         self.check_domain(attribute)
 
         return True
 
     def get_domain(self, attribute):
-        if attribute in self.domains:
-            return self.domains[attribute]
+        if attribute in CsvManager.domains:
+            return CsvManager.domains[attribute]
         else:
             return ""
 
     def check_domain(self, attribute_name):
-        if attribute_name in self.wrong_registers:
-            del self.wrong_registers[attribute_name]
+        if attribute_name in CsvManager.wrong_registers:
+            del CsvManager.wrong_registers[attribute_name]
 
         try:
-            index = self.headers.index(attribute_name)
+            index = CsvManager.headers.index(attribute_name)
         except exceptions.Exception:
             return False
 
-        if attribute_name in self.domains:
-            domain = self.domains[attribute_name]
-            for i, elem in enumerate(self.data):
+        if attribute_name in CsvManager.domains:
+            domain = CsvManager.domains[attribute_name]
+            for i, elem in enumerate(CsvManager.data):
                 if re.match(domain, elem[index]) is None:
-                    if not attribute_name in self.wrong_registers:
-                        self.wrong_registers[attribute_name] = []
+                    if not attribute_name in CsvManager.wrong_registers:
+                        CsvManager.wrong_registers[attribute_name] = []
 
-                    self.wrong_registers[attribute_name].append(i)
+                    CsvManager.wrong_registers[attribute_name].append(i)
 
     def check_all_domains(self):
-        for elem in self.domains:
+        for elem in CsvManager.domains:
             self.check_domain(elem)
 
     def check_type(self, object):
@@ -241,12 +241,12 @@ class CsvManager:
 
     def get_numeric_items(self, attribute_name):
         try:
-            index_found = self.headers.index(attribute_name)
+            index_found = CsvManager.headers.index(attribute_name)
         except exceptions.Exception:
             return False
 
         try:
-            nums = [float(x[index_found]) for x in self.data]
+            nums = [float(x[index_found]) for x in CsvManager.data]
         except ValueError:
             return False
 
@@ -254,12 +254,12 @@ class CsvManager:
 
     def get_string_items(self, attribute_name):
         try:
-            index_found = self.headers.index(attribute_name)
+            index_found = CsvManager.headers.index(attribute_name)
         except exceptions.Exception:
             return False
 
         try:
-            strings = [x[index_found] for x in self.data if x[index_found] != constants.MISSING_DATA_SYMBOL]
+            strings = [x[index_found] for x in CsvManager.data if x[index_found] != constants.MISSING_DATA_SYMBOL]
         except ValueError:
             return False
 
