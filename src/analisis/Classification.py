@@ -21,16 +21,50 @@ class Classification:
 
     @staticmethod
     def one_r(data, index_class):
-        if len(data) == 0 or index_class not in range(0, len(data[0])):
+        registers = len(data)
+
+        if registers == 0 or index_class not in range(0, len(data[0])):
             return {}
 
         frequency_table = JarvisMath.calculate_frequency_table(data, index_class)
-        # encontrar mayor frecuencia, sumar el resto (error), ir guardando el menor
-        for key, value in frequency_table.iteritems():
-            for k2, v2 in value.iteritems():
-                index_found = list_search(key, numeric_indexes)
+        error_table = {}
+        fewer_mistake = 1
 
-        return frequency_table
+        for key, value in frequency_table.iteritems():
+            attribute_values = value.items()
+            attribute_values.sort()
+
+            actual_val = attribute_values[0][0][0]
+            max_f = -1
+            cont = 0
+            mistake_table = {}
+            attribute_error = 0
+
+            for elem in attribute_values:
+                if actual_val != elem[0][0]:
+                    attribute_error += (cont - max_f) / registers
+                    mistake_table[max_tuple[0]] = max_tuple[1]
+                    actual_val = elem[0][0]
+                    max_f = -1
+                    cont = 0
+
+                if elem[1] > max_f:
+                    max_tuple = elem[0]
+                    max_f = elem[1]
+
+                cont += elem[1]
+            mistake_table[max_tuple[0]] = max_tuple[1]
+            attribute_error += (cont - max_f) / registers
+
+            error_table[key] = mistake_table
+
+            if attribute_error < fewer_mistake:
+                fewer_mistake = attribute_error
+                f_m_key = key
+
+        model = {key: error_table[f_m_key]}
+
+        return model
 
     # Gets the naive bayes model from a data base, returns the class values counter used and the probability table
     @staticmethod
@@ -70,7 +104,16 @@ class Classification:
 
     @staticmethod
     def one_r_prediction(instance, model, class_index):
-        pass
+        if len(model) == 0 or class_index not in range(0, len(instance)) or len(instance) == 0:
+            return []
+
+        position = model.keys()[0]
+        instance_val = instance[position if position < class_index else position - 1]
+        if list_search(instance_val, model[position].keys()) != -1:
+            instance.insert(class_index, model[position][instance_val])
+            return instance
+        else:
+            return []
 
     @staticmethod
     def naive_bayes_prediction(instance, model, class_index, numeric_indexes = []):
