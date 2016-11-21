@@ -49,7 +49,6 @@ class CsvManager:
         for item in reader.next():
             self.headers.append(item)
 
-
         for line in reader:
             for i, element in enumerate(line):
                 if not element or element.isspace():
