@@ -57,7 +57,13 @@ class JarvisMath:
         return div * euler
 
     def chi_square(self, x2, free):
-        for i, val in enumerate(self.chi_values['free'][str(free)]):
-            if x2 > val and i < len(self.chi_values['free'][str(free)])-1:
-                continue
-            return self.chi_values['probability'][i]
+        try:
+            if str(free) in self.chi_values['free']:
+                for i, val in enumerate(self.chi_values['free'][str(free)]):
+                    if x2 > val and i < len(self.chi_values['free'][str(free)])-1:
+                        continue
+                    return self.chi_values['probability'][i]
+            else:
+                return False
+        except ValueError:
+            return False
