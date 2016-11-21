@@ -13,35 +13,33 @@ class Correlation():
         pass
 
     @staticmethod
-    def nominal(data, attribute_1, attribute_2):
-        if not index_in_range(attribute_1, data) or not index_in_range(attribute_2, data):
-            return None
+    def nominal(data_1, data_2):
+        if len(data_1) != len(data_2):
+            return False
 
-        frequency_table = Counter([(x[attribute_1], x[attribute_2]) for x in data])
-        counter_attribute_1 = Counter(x[attribute_1] for x in data)
-        counter_attribute_2 = Counter(x[attribute_2] for x in data)
+        frequency_table = Counter([(x, y) for x, y in zip(data_1, data_2)])
+        counter_attribute_1 = Counter(x for x in data_1)
+        counter_attribute_2 = Counter(x for x in data_2)
         x2 = []
         for key, val in counter_attribute_1.iteritems():
             for key2, val2 in counter_attribute_2.iteritems():
-                e = val * val2 / len(data)
+                e = val * val2 / len(data_1)
                 x = frequency_table[(key, key2)]
                 calc = pow(x - e, 2) / e
                 x2.append(calc)
         jm = JarvisMath()
         free_levels = (len(counter_attribute_1) - 1) * (len(counter_attribute_2) - 1)
+        print free_levels
         return jm.chi_square(sum(x2), free_levels)
 
     @staticmethod
-    def numeric(data, attribute_1, attribute_2):
-        if not index_in_range(attribute_1, data) or not index_in_range(attribute_2, data):
-            return None
+    def numeric(data_1, data_2):
+        if len(data_1) != len(data_2):
+            return False
 
-        list_attribute_1 = [x[attribute_1] for x in data]
-        list_attribute_2 = [x[attribute_2] for x in data]
-        mean_1 = numpy.mean(list_attribute_1)
-        mean_2 = numpy.mean(list_attribute_2)
-        desvest_1 = numpy.std(list_attribute_1)
-        desvest_2 = numpy.std(list_attribute_2)
-        n = len(data)
-        partial = sum([(x[attribute_1] - mean_1)*(x[attribute_2]- mean_2) for x in data])
-        return partial / (n * desvest_1 * desvest_2)
+        mean_1 = numpy.mean(data_1)
+        mean_2 = numpy.mean(data_2)
+        desvest_1 = numpy.std(data_1)
+        desvest_2 = numpy.std(data_2)
+        partial = sum([(x - mean_1)*(y- mean_2) for x, y in zip(data_1, data_2)])
+        return partial / (len(data_1) * desvest_1 * desvest_2)
