@@ -10,4 +10,3 @@ DEL_MARKUP_STRING = '<span foreground="red">Del</span>'
 MOD_MARKUP_STRING = '<span foreground="blue">Mod</span>'
 SPAN_MARKUP_REGEXP = '(</?span([a-z]|=|\"|\s)*>)'
 CHI_VALUES_DIR = os.path.abspath('abs_values/chi_square.json')
-print CHI_VALUES_DIR
