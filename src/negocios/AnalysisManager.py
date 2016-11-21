@@ -10,6 +10,7 @@ from gi.repository import Gtk
 
 from controladores.CsvManager import CsvManager
 from analisis.NominalTransformation import NominalTransformation
+from analisis.Correlation import Correlation
 from analisis.Usseful import list_search
 
 class AnalysisManager():
@@ -63,27 +64,7 @@ class AnalysisManager():
         self.load_combo_box_attributes(combo_boxes['attribute_1'])
         self.load_combo_box_attributes(combo_boxes['attribute_2'])
 
-    def calculate_transform(self, text_inputs, combo_boxes, data_labels):
-        instance_1 = text_inputs['instance_1'].get_text()
-        instance_2 = text_inputs['instance_2'].get_text()
-        try:
-            instance_1 = int(instance_1)
-            instance_2 = int(instance_2)
-        except ValueError:
-            return None
-        # TODO: send error message
-
-        attribute_1 = combo_boxes['attribute_1'].get_active_text()
-        attribute_2 = combo_boxes['attribute_2'].get_active_text()
-        index_1 = list_search(attribute_1, self.csv.headers)
-        index_2 = list_search(attribute_2, self.csv.headers)
-
-        if index_1 < 0 or index_2 < 0:
-            return None
-
-        value_1 = self.csv.data[instance_1][index_1]
-        value_2 = self.csv.data[instance_2][index_2]
-
+    def calculate_transform(self, text_inputs, combo_boxes, data_labels, value_1, value_2):
         data_labels['lev_1'].set_text(str(value_1))
         data_labels['lev_2'].set_text(str(value_2))
 
@@ -93,6 +74,34 @@ class AnalysisManager():
         else:
             data_labels['lev_result'].set_text('ERROR')
 
+    def calculate_correlation(self, text_inputs, combo_boxes, data_labels, attribute_1, attribute_2,
+                              index_1, index_2):
+        data_labels['cor_1'].set_text(str(attribute_1))
+        data_labels['cor_2'].set_text(str(attribute_2))
+
+        numeric = True
+        data_1 = self.csv.get_numeric_items(attribute_1)
+        data_2 = self.csv.get_numeric_items(attribute_2)
+
+        if not data_1 or not data_2:
+            data_1 = self.csv.get_string_items(attribute_1)
+            data_2 = self.csv.get_string_items(attribute_2)
+            numeric = False
+
+        if not data_1 or not data_2:
+            # TODO: send error message, attributes mus be the same type
+            return
+
+        if numeric:
+            correlation = Correlation.numeric(data_1, data_2)
+        else:
+            correlation= Correlation.nominal(data_1, data_2)
+
+        print correlation, len(data_1), len(data_2)
+        if correlation != False:
+            data_labels['cor_result'].set_text(str(correlation))
+        else:
+            data_labels['cor_result'].set_text('ERROR')
 
     def calculate(self, widget, text_inputs, combo_boxes, data_labels):
         attribute_1 = combo_boxes['attribute_1'].get_active_text()
@@ -100,4 +109,22 @@ class AnalysisManager():
         index_1 = list_search(attribute_1, self.csv.headers)
         index_2 = list_search(attribute_2, self.csv.headers)
 
-        self.calculate_transform(text_inputs, combo_boxes, data_labels)
+        if index_1 < 0 or index_2 < 0:
+            data_labels['lev_result'].set_text('ERROR')
+            return
+
+        self.calculate_correlation(text_inputs, combo_boxes, data_labels, attribute_1, attribute_2,
+                                   index_1, index_2)
+
+        try:
+            instance_1 = int(text_inputs['instance_1'].get_text())
+            instance_2 = int(text_inputs['instance_2'].get_text())
+        except ValueError:
+            return None
+        # TODO: send error message
+
+        value_1 = self.csv.data[instance_1][index_1]
+        value_2 = self.csv.data[instance_2][index_2]
+
+        self.calculate_transform(text_inputs, combo_boxes, data_labels, value_1, value_2)
+
