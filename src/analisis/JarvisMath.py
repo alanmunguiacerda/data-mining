@@ -1,5 +1,7 @@
 import numpy
 import math
+import json
+from src.constants import CHI_VALUES_DIR
 from collections import Counter
 from itertools import groupby
 from operator import itemgetter
@@ -7,9 +9,11 @@ from Usseful import list_search
 
 
 class JarvisMath:
+    chi_values = None
 
     def __init__(self):
-        pass
+        chi_file = open(CHI_VALUES_DIR, 'r')
+        self.chi_values = json.loads(chi_file.read())
 
     @staticmethod
     def mad(data):
@@ -51,3 +55,9 @@ class JarvisMath:
         div = 1 / (math.sqrt(2 * math.pi) * std_deviation)
         euler = pow(math.e, (-(pow(x - mean, 2)) / (2*pow(std_deviation, 2))))
         return div * euler
+
+    def chi_square(self, x2, free):
+        for i, val in enumerate(self.chi_values['free'][str(free)]):
+            if x2 > val and i < len(self.chi_values['free'][str(free)])-1:
+                continue
+            return self.chi_values['probability'][i]
