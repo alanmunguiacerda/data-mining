@@ -1,10 +1,12 @@
-import numpy
-import math
 import json
-from src.constants import CHI_VALUES_DIR
+import math
 from collections import Counter
 from itertools import groupby
 from operator import itemgetter
+
+import numpy
+from src.constants import CHI_VALUES_DIR
+
 from Usseful import list_search
 
 

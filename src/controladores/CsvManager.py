@@ -22,17 +22,19 @@ class CsvManager:
     filename = None
     domains = {}
     wrong_registers = {}
+    class_index = 0
 
     def __init__(self):
         pass
 
     def reset_shared(self):
-        del CsvManager.headers[:]
-        del CsvManager.data[:]
-        del CsvManager.dataVersions[:]
-        CsvManager.domains.clear()
-        CsvManager.wrong_registers.clear()
-        CsvManager.filename = None
+        del self.headers[:]
+        del self.data[:]
+        del self.dataVersions[:]
+        self.domains.clear()
+        self.wrong_registers.clear()
+        self.filename = None
+        CsvManager.class_index = 0
 
     def load_file(self, filename):
         if not filename:
@@ -98,7 +100,7 @@ class CsvManager:
         except exceptions.Exception:
             return False
 
-        self.new_version(data = True, headers=True, domains=True)
+        self.new_version(data=True, headers=True, domains=True)
 
         if attribute_name in CsvManager.domains:
             del CsvManager.domains[attribute_name]
@@ -107,6 +109,9 @@ class CsvManager:
 
         for row in CsvManager.data:
             del row[index_found]
+
+        if index_found == CsvManager.class_index:
+            CsvManager.class_index = 0
 
         return True
 
@@ -172,7 +177,6 @@ class CsvManager:
         path_name = str.split(file_path, '.')[0]
 
         self.save_obj(CsvManager.domains, path_name)
-
 
     def missing_values(self, attribute_name):
         try:
@@ -337,3 +341,7 @@ class CsvManager:
         for i, value in enumerate(new_data):
             CsvManager.data[i][index_found] = str(value)
         return True
+
+    def class_index_changed(self, widget):
+        CsvManager.class_index = widget.get_active()
+        print CsvManager.class_index

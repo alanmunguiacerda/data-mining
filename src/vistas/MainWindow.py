@@ -8,10 +8,12 @@ from gi.repository import GObject
 from gi.repository import Gtk
 from PreprocessTab import PreprocessTab
 from AnalysisTab import AnalysisTab
+from ClassificationTab import ClassificationTab
 
 class MainWindow(Gtk.Window):
+
     def __init__(self):
-        Gtk.Window.__init__(self, title="Litul' Yarvis")
+        Gtk.Window.__init__(self, title="Lil' Jarvis")
 
         self.menus = {}
         self.menu_options = {}
@@ -23,6 +25,7 @@ class MainWindow(Gtk.Window):
 
         self.create_pre_process_page()
         self.create_analysis_page()
+        self.create_classification_page()
 
         self.set_signals()
         self.set_connections()
@@ -69,6 +72,11 @@ class MainWindow(Gtk.Window):
         self.analysis_page = AnalysisTab(self)
         self.analysis_page.set_border_width(10)
         self.notebook.append_page(self.analysis_page, Gtk.Label("Analysis"))
+
+    def create_classification_page(self):
+        self.classification_page = ClassificationTab(self)
+        self.classification_page.set_border_width(10)
+        self.notebook.append_page(self.classification_page, Gtk.Label("Classification"))
 
     def create_menu_bar(self):
         file_items = [('file_open','Open File', True, False),

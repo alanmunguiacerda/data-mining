@@ -1,8 +1,12 @@
 from __future__ import division
+
 import collections
+
 import numpy
+
 from JarvisMath import JarvisMath
 from Usseful import list_search
+
 
 class Classification:
 

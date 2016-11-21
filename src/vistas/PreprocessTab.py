@@ -8,13 +8,14 @@ gi.require_version('Gtk', '3.0')
 from gi.repository import Gtk
 from gi.repository import GObject
 
-from src.vistas.BaseTab import BaseTab
-from src.vistas.ErrorDialog import ErrorDialog
-from src.negocios.PreprocessManager import PreprocessManager
-from src.vistas.DomainDialog import DomainDialog
-from src.vistas.ModifyFileDialog import ModifyFileDialog
+from vistas.BaseTab import BaseTab
+from vistas.ErrorDialog import ErrorDialog
+from negocios.PreprocessManager import PreprocessManager
+from vistas.DomainDialog import DomainDialog
+from vistas.ModifyFileDialog import ModifyFileDialog
 
 class PreprocessTab(BaseTab):
+
     def __init__(self, parent):
         BaseTab.__init__(self, parent)
 
@@ -94,6 +95,7 @@ class PreprocessTab(BaseTab):
 
         # Transform menu update
         self.connect('update-transform-menu', self.preprocess_manager.update_transform_menu)
+        self.combo_boxes['class_attribute'].connect("changed", self.preprocess_manager.csv.class_index_changed)
 
     def attach_all_to_layout(self):
         self.page_layout.attach(self.boxes['open_file'], 0, 0, 2, 1)
@@ -104,7 +106,7 @@ class PreprocessTab(BaseTab):
         self.page_layout.attach(self.frames['selected_attribute_statistics'], 1, 5, 1, 1)
 
     def create_selected_attribute_frame(self):
-        frame = self.create_frame('selected_attribute' ,'Selected attribute')
+        frame = self.create_frame('selected_attribute', 'Selected attribute')
         box = self.create_box(frame, 'selected_attribute')
         self.create_grid(box, 'selected_attribute')
 
@@ -171,7 +173,6 @@ class PreprocessTab(BaseTab):
         self.insert_buttons(attributes_buttons_box,
                             ['attributes_remove', 'attributes_regex'],
                             ['Remove', 'Domain'])
-
 
         attributes_list_box.pack_start(self.boxes['attributes_buttons'], False, False, 0)
 
