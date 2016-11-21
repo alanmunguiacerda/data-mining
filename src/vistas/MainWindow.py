@@ -42,6 +42,13 @@ class MainWindow(Gtk.Window):
         self.menu_options['edit_registers'].connect("activate", self.pre_process_page.on_edit_registers)
         self.menu_options['edit_undo'].connect("activate", self.pre_process_page.preprocess_manager.undo,
                                                self.pre_process_page, self.menu_options['edit_undo'])
+        self.notebook.connect("switch-page", self.switch_page)
+
+    def switch_page(self, notebook, page, page_num):
+        try:
+            page.emit('page-selected')
+        except Exception:
+            return
 
     def create_notebook(self):
         self.notebook = Gtk.Notebook()

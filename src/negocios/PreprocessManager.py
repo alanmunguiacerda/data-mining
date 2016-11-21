@@ -13,10 +13,9 @@ from vistas.ErrorDialog import ErrorDialog
 
 
 class PreprocessManager:
-    csv = CsvManager()
-
     def __init__(self, parent):
         self.parent = parent
+        self.csv = CsvManager()
 
     def set_file(self, widget, file_name, edit_undo):
         if self.csv.load_file(file_name):

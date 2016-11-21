@@ -96,12 +96,13 @@ class BaseTab(Gtk.Box):
                 (c, r) = (0, r+1)
 
     def insert_static_label_combo_box(self, grid_name, static_labels, combo_box,
-                                           extras=[], columns=2, data_col_width=3):
+                                       extras=[], start_col=0, start_row=0,
+                                       columns=2, data_col_width=3):
 
         if not grid_name in self.grids:
             return False
 
-        (c, r) = (0, 0)
+        (c, r) = (start_col, start_row)
         self.grids[grid_name].set_border_width(5)
         for st_lb, cb_bx in zip(static_labels, combo_box):
             static_label = Gtk.Label(st_lb + ': ')
@@ -119,17 +120,55 @@ class BaseTab(Gtk.Box):
             if c >= columns or cb_bx in extras:
                 (c, r) = (0, r + 1)
 
-    def insert_buttons(self, parent, buttons_names, buttons_labels):
-        createdElements = []
-        for name, label in zip(buttons_names, buttons_labels):
-            if name in self.buttons:
-                continue
-            self.buttons[name] = Gtk.Button(label)
-            self.buttons[name].set_border_width(5)
-            createdElements.append(self.buttons[name])
+    def insert_static_label_input_text(self, grid_name, static_labels, text_inputs,
+                                       extras=[], start_col = 0, start_row = 0,
+                                       columns=2, data_col_width=3):
 
-            if parent:
-                parent.pack_start(self.buttons[name], False, False, 0)
+        if not grid_name in self.grids:
+            return False
+
+        (c, r) = (start_col, start_row)
+        self.grids[grid_name].set_column_spacing(5)
+        for st_lb, tx_in in zip(static_labels, text_inputs):
+            static_label = Gtk.Label(st_lb + ': ')
+            self.text_inputs[tx_in] = Gtk.Entry()
+
+            static_label.set_halign(Gtk.Align.START)
+
+            self.grids[grid_name].attach(static_label, c * data_col_width, r, 1, 1)
+            cols = (data_col_width - 1, (data_col_width - 1) * columns)[tx_in in extras]
+            self.grids[grid_name].attach(self.text_inputs[tx_in], c * data_col_width + 1, r, cols, 1)
+
+            c += 1
+            if c >= columns or tx_in in extras:
+                (c, r) = (0, r + 1)
+
+    def insert_button(self, parent, button_name, button_label, col=0, row=0, col_span=0, row_span=0):
+        if button_name in self.buttons:
+            return None
+        self.buttons[button_name] = Gtk.Button(button_label)
+        self.buttons[button_name].set_border_width(5)
+
+        if type(parent) is Gtk.Box:
+            parent.pack_start(self.buttons[button_name], False, False, 0)
+        elif type(parent) is Gtk.Grid:
+            parent.attach(self.buttons[button_name], col, row, col_span, row_span)
+
+        return self.buttons[button_name]
+
+    def insert_buttons(self, parent, buttons_names, buttons_labels, cols=0, rows=0, col_span=0, row_span=0):
+        createdElements = []
+        if type(parent) is Gtk.Box:
+            for name, label in zip(buttons_names, buttons_labels):
+                self.insert_button(parent, name, label)
+        elif type(parent) is Gtk.Grid:
+            (c, r) = (0, 0)
+            for name, label in zip(buttons_names, buttons_labels):
+                self.insert_button(parent, name, label, c * col_span, r * row_span, col_span, row_span)
+                c += 1
+
+                if c >= cols:
+                    (c, r) = (0, r + 1)
 
         return createdElements
 

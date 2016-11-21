@@ -2,23 +2,20 @@
 # -*- coding: utf-8 -*-
 
 import gi
-import os
 
 gi.require_version('Gtk', '3.0')
 from gi.repository import Gtk
 from gi.repository import GObject
 
 from src.vistas.BaseTab import BaseTab
-from src.controladores.CsvManager import CsvManager
-from src.vistas.ErrorDialog import ErrorDialog
-from src.vistas.DomainPopup import DomainPopup
-from src.vistas.ModifyFileDialog import ModifyFileDialog
+from src.negocios.AnalysisManager import AnalysisManager
 
 class AnalysisTab(BaseTab):
     def __init__(self, parent):
-        super(AnalysisTab, self).__init__(parent)
+        BaseTab.__init__(self, parent)
 
-        self.csvManager = CsvManager()
+        self.analysisManager = AnalysisManager(self)
+
         self.create_data_table()
         self.create_selectors()
         self.create_levenshtain_results()
@@ -31,10 +28,12 @@ class AnalysisTab(BaseTab):
         self.set_connections()
 
     def set_signals(self):
-        pass
+        GObject.signal_new('page-selected', self, GObject.SIGNAL_RUN_LAST, GObject.TYPE_PYOBJECT,
+                           ())
 
     def set_connections(self):
-        pass
+        self.connect('page-selected', self.selected)
+        self.buttons['calculate'].connect('clicked', self.analysisManager.calculate, self.text_inputs, self.combo_boxes, self.labels)
 
     def attach_all_to_layout(self):
         self.page_layout.attach(self.frames['data_table'], 0, 0, 3, 1)
@@ -50,15 +49,20 @@ class AnalysisTab(BaseTab):
     def create_selectors(self):
         frame = self.create_frame('selectors', 'Options')
         box = self.create_box(frame, 'selectors')
-        self.create_grid(box, 'selectors')
+        grid = self.create_grid(box, 'selectors')
 
-        attribute_statistics_labels = ['Instance #1', 'Instance #2', 'Attribute #1', 'Attribute #2']
-        combo_boxes = ['instance_1', 'instance_2', 'attribute_1', 'attribute_2']
+        instance_static_labels = ['Instance #1', 'Instance #2']
+        input_fields = ['instance_1', 'instance_2']
 
-        self.insert_static_label_combo_box('selectors', attribute_statistics_labels, combo_boxes)
+        self.insert_static_label_input_text('selectors', instance_static_labels, input_fields)
 
-        self.insert_buttons(box, ['calculate'], ['Calculate'])
-        self.insert_buttons(box, ['calculate'], ['Calculate'])
+        attribute_statistics_labels = ['Attribute #1', 'Attribute #2']
+        combo_boxes = ['attribute_1', 'attribute_2']
+
+        self.insert_static_label_combo_box('selectors', attribute_statistics_labels, combo_boxes,
+                                           start_row=2)
+
+        self.insert_button(grid, 'calculate', 'Calculate', 1, 3, 4, 1)
 
     def create_levenshtain_results(self):
         frame = self.create_frame('lev_results', 'Levenshtain')
@@ -66,7 +70,7 @@ class AnalysisTab(BaseTab):
         self.create_grid(box, 'lev_results')
 
         static_labels = ['Value 1', 'Value 2', 'Result']
-        data_labels = ['lev_1', 'lev_2', 'result']
+        data_labels = ['lev_1', 'lev_2', 'lev_result']
 
         self.insert_static_label_data_label('lev_results', static_labels, data_labels, columns=1)
 
@@ -76,6 +80,9 @@ class AnalysisTab(BaseTab):
         self.create_grid(box, 'cor_results')
 
         static_labels = ['Attribute 1', 'Attribute 2', 'Result']
-        data_labels = ['cor_1', 'cor_2', 'result']
+        data_labels = ['cor_1', 'cor_2', 'cor_result']
 
         self.insert_static_label_data_label('cor_results', static_labels, data_labels, columns=1)
+
+    def selected(self, *args):
+        self.analysisManager.update_all(self.tree_views['data_table'], self.combo_boxes)

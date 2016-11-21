@@ -16,7 +16,7 @@ from src.vistas.ModifyFileDialog import ModifyFileDialog
 
 class PreprocessTab(BaseTab):
     def __init__(self, parent):
-        super(PreprocessTab, self).__init__(parent)
+        BaseTab.__init__(self, parent)
 
         self.preprocess_manager = PreprocessManager(self)
 
