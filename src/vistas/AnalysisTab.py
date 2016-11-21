@@ -56,13 +56,13 @@ class AnalysisTab(BaseTab):
 
         self.insert_static_label_input_text('selectors', instance_static_labels, input_fields)
 
-        attribute_statistics_labels = ['Attribute #1', 'Attribute #2']
-        combo_boxes = ['attribute_1', 'attribute_2']
+        attribute_statistics_labels = ['Attribute #1', 'Attribute #2', 'Calculate']
+        combo_boxes = ['attribute_1', 'attribute_2', 'calc_type']
 
         self.insert_static_label_combo_box('selectors', attribute_statistics_labels, combo_boxes,
                                            start_row=2)
 
-        self.insert_button(grid, 'calculate', 'Calculate', 1, 3, 4, 1)
+        self.insert_button(grid, 'calculate', 'Calculate', 3, 3, 3, 1)
 
     def create_levenshtain_results(self):
         frame = self.create_frame('lev_results', 'Levenshtain')
