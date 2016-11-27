@@ -11,7 +11,7 @@ from gi.repository import GObject
 from src.vistas.BaseTab import BaseTab
 from src.vistas.ErrorDialog import ErrorDialog
 from src.negocios.PreprocessManager import PreprocessManager
-from src.vistas.DomainPopup import DomainPopup
+from src.vistas.DomainDialog import DomainDialog
 from src.vistas.ModifyFileDialog import ModifyFileDialog
 
 class PreprocessTab(BaseTab):
@@ -44,6 +44,8 @@ class PreprocessTab(BaseTab):
                            ())
         GObject.signal_new('registers-edited', self, GObject.SIGNAL_RUN_LAST, GObject.TYPE_PYOBJECT,
                            ())
+        GObject.signal_new('update-transform-menu', self, GObject.SIGNAL_RUN_LAST, GObject.TYPE_PYOBJECT,
+                           (GObject.TYPE_PYOBJECT, GObject.TYPE_PYOBJECT,))
 
     def set_connections(self):
         self.buttons['file_select'].connect('clicked', self.on_open_file_menu)
@@ -52,6 +54,7 @@ class PreprocessTab(BaseTab):
         self.connect("after-file-loaded", self.preprocess_manager.clean_attributes_widgets,
                      self.tree_views, self.combo_boxes, self.labels)
         self.connect("after-file-loaded", self.parent.enable_save_edit_file)
+        self.connect("after-file-loaded", self.parent.load_transformation_menu)
         self.connect("file-path-ready", self.preprocess_manager.set_file, self.parent.menu_options['edit_undo'])
         self.connect("after-file-loaded", self.preprocess_manager.load_combo_box_attributes,
                      self.combo_boxes['class_attribute'])
@@ -84,9 +87,13 @@ class PreprocessTab(BaseTab):
                      self.tree_views['attributes_list'])
         self.connect("refresh-all", self.preprocess_manager.set_file_info, self.labels)
         self.connect("refresh-all", self.refresh_parent)
+        self.connect("refresh-all", self.parent.load_transformation_menu)
 
         # Registers edited sets undo active
         self.connect('registers-edited', self.parent.on_registers_edited)
+
+        # Transform menu update
+        self.connect('update-transform-menu', self.preprocess_manager.update_transform_menu)
 
     def attach_all_to_layout(self):
         self.page_layout.attach(self.boxes['open_file'], 0, 0, 2, 1)
@@ -222,7 +229,7 @@ class PreprocessTab(BaseTab):
             return
         attribute_name = model[row][1]
 
-        dialog = DomainPopup(self, attribute_name)
+        dialog = DomainDialog(self, attribute_name)
 
         response = dialog.run()
 

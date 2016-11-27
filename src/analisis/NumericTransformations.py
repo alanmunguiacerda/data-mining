@@ -1,3 +1,6 @@
+#!/usr/bin/env python
+# -*- coding: utf-8 -*-
+
 from __future__ import division
 import numpy
 from JarvisMath import JarvisMath
@@ -12,7 +15,11 @@ class NumericTransformations:
     def min_max(data, data_min, data_max, new_min, new_max):
         max_min = data_max - data_min
         new_max_min = new_max - new_min
-        normalized_data = [((x - data_min) / max_min * new_max_min + new_min) for x in data]
+        divisor = max_min * new_max_min + new_min
+        if divisor == 0:
+            return False
+
+        normalized_data = [((x - data_min) / divisor) for x in data]
 
         return normalized_data
 

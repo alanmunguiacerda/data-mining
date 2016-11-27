@@ -253,6 +253,10 @@ class CsvManager:
 
         return nums
 
+    def get_numeric_attributes(self):
+        return [x for x in self.headers if self.get_numeric_items(x)]
+
+
     def get_string_items(self, attribute_name):
         try:
             index_found = CsvManager.headers.index(attribute_name)
@@ -319,3 +323,17 @@ class CsvManager:
     def load_obj(self, path_filename):
         with open(path_filename + '.pkl', 'rb') as f:
             return pickle.load(f)
+
+    def replace_column(self, attribute, new_data):
+        try:
+            index_found = CsvManager.headers.index(attribute)
+        except exceptions.Exception:
+            return False
+
+        if len(new_data) != len(CsvManager.data):
+            return False
+
+        self.new_version(data=True)
+        for i, value in enumerate(new_data):
+            CsvManager.data[i][index_found] = str(value)
+        return True

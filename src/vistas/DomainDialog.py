@@ -4,7 +4,7 @@ gi.require_version('Gtk', '3.0')
 from gi.repository import Gtk
 
 
-class DomainPopup(Gtk.Dialog):
+class DomainDialog(Gtk.Dialog):
 
     def __init__(self, parent, attribute_name):
         Gtk.Dialog.__init__(self, "Define regular expression", None, Gtk.DialogFlags.MODAL,
