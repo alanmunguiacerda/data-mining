@@ -23,6 +23,4 @@ class NominalTransformation:
                              ind_i + 1 if ind_j == 0 else j[ind_j - 1][ind_i] + 1,
                              diagonal + int(str2[ind_j] != str1[ind_i]))
                          )
-
-        for ind in range(0, len(j)):
-            print j[ind]
+        return j

@@ -4,8 +4,10 @@
 import gi
 
 gi.require_version('Gtk', '3.0')
+from gi.repository import GObject
 from gi.repository import Gtk
 from PreprocessTab import PreprocessTab
+from AnalysisTab import AnalysisTab
 
 class MainWindow(Gtk.Window):
     def __init__(self):
@@ -20,7 +22,9 @@ class MainWindow(Gtk.Window):
         self.create_notebook()
 
         self.create_pre_process_page()
+        self.create_analysis_page()
 
+        self.set_signals()
         self.set_connections()
 
     def set_style(self):
@@ -32,6 +36,9 @@ class MainWindow(Gtk.Window):
         self.layout.set_orientation(Gtk.Orientation.VERTICAL)
         self.add(self.layout)
 
+    def set_signals(self):
+        GObject.signal_new('update-pages', self, GObject.SIGNAL_RUN_LAST, GObject.TYPE_PYOBJECT, ())
+
     def set_connections(self):
         self.connect("delete-event", Gtk.main_quit)
         self.menu_options['file_exit'].connect("activate", self.on_exit_file_menu)
@@ -41,6 +48,14 @@ class MainWindow(Gtk.Window):
         self.menu_options['edit_undo'].connect("activate", self.pre_process_page.preprocess_manager.undo,
                                                self.pre_process_page, self.menu_options['edit_undo'])
 
+        self.connect("update-pages", self.update_pages, self.analysis_page, 0)
+
+    def update_pages(self, notebook, page, page_num):
+        try:
+            page.emit('page-selected')
+        except Exception:
+            return
+
     def create_notebook(self):
         self.notebook = Gtk.Notebook()
         self.layout.pack_start(self.notebook, True, True, 0)
@@ -49,6 +64,11 @@ class MainWindow(Gtk.Window):
         self.pre_process_page = PreprocessTab(self)
         self.pre_process_page.set_border_width(10)
         self.notebook.append_page(self.pre_process_page, Gtk.Label("Pre-process"))
+
+    def create_analysis_page(self):
+        self.analysis_page = AnalysisTab(self)
+        self.analysis_page.set_border_width(10)
+        self.notebook.append_page(self.analysis_page, Gtk.Label("Analysis"))
 
     def create_menu_bar(self):
         file_items = [('file_open','Open File', True),
@@ -97,6 +117,7 @@ class MainWindow(Gtk.Window):
     def enable_save_edit_file(self, *args):
         self.menu_options['file_save'].set_sensitive(True)
         self.menu_options['edit_registers'].set_sensitive(True)
+        self.emit('update-pages')
 
     def on_registers_edited(self, *args):
         self.menu_options['edit_undo'].set_sensitive(True)

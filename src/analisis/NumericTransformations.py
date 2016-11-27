@@ -14,22 +14,22 @@ class NumericTransformations:
         new_max_min = new_max - new_min
         normalized_data = [((x - data_min) / max_min * new_max_min + new_min) for x in data]
 
-        print normalized_data
+        return normalized_data
 
     @staticmethod
     def z_score(data, deviation):
         mean = numpy.mean(data)
         normalized_data = [(x - mean) / deviation for x in data]
 
-        print normalized_data
+        return normalized_data
 
     @staticmethod
     def z_score_standard(data):
-        NumericTransformations.z_score(data, numpy.std(data))
+        return NumericTransformations.z_score(data, numpy.std(data))
 
     @staticmethod
     def z_score_absolute(data):
-        NumericTransformations.z_score(data, JarvisMath.mad(data))
+        return NumericTransformations.z_score(data, JarvisMath.mad(data))
 
     @staticmethod
     def decimal_scaling(data):
@@ -41,4 +41,4 @@ class NumericTransformations:
         for ind in range(0, len(data)):
             normalized_data.append(data[ind] / factor)
 
-        print normalized_data
+        return normalized_data

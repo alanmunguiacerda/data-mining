@@ -72,6 +72,7 @@ class CsvManager:
             new_version['headers'] = copy.deepcopy(CsvManager.headers)
         if domains:
             new_version['domains'] = copy.deepcopy(CsvManager.domains)
+        if CsvManager.wrong_registers:
             new_version['wrong_registers'] = copy.deepcopy(CsvManager.wrong_registers)
         if len(new_version) > 0:
             CsvManager.dataVersions.append(new_version)
