@@ -83,6 +83,7 @@ class PreprocessTab(BaseTab):
         self.connect("refresh-all", self.preprocess_manager.load_attributes_tree_view,
                      self.tree_views['attributes_list'])
         self.connect("refresh-all", self.preprocess_manager.set_file_info, self.labels)
+        self.connect("refresh-all", self.refresh_parent)
 
         # Registers edited sets undo active
         self.connect('registers-edited', self.parent.on_registers_edited)
@@ -254,3 +255,6 @@ class PreprocessTab(BaseTab):
             self.preprocess_manager.save_file(dialog.get_filename())
 
         dialog.destroy()
+
+    def refresh_parent(self, widget):
+        self.parent.emit('update-pages')

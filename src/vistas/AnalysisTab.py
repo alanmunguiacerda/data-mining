@@ -56,8 +56,8 @@ class AnalysisTab(BaseTab):
 
         self.insert_static_label_input_text('selectors', instance_static_labels, input_fields)
 
-        attribute_statistics_labels = ['Attribute #1', 'Attribute #2', 'Calculate']
-        combo_boxes = ['attribute_1', 'attribute_2', 'calc_type']
+        attribute_statistics_labels = ['Attribute #1', 'Attribute #2']
+        combo_boxes = ['attribute_1', 'attribute_2']
 
         self.insert_static_label_combo_box('selectors', attribute_statistics_labels, combo_boxes,
                                            start_row=2)
