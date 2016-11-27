@@ -27,7 +27,6 @@ class Correlation():
                 x2.append(calc)
         jm = JarvisMath()
         free_levels = (len(counter_attribute_1) - 1) * (len(counter_attribute_2) - 1)
-        print free_levels
         return jm.chi_square(sum(x2), free_levels)
 
     @staticmethod
