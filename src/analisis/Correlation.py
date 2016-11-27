@@ -5,8 +5,6 @@ from __future__ import division
 import numpy
 from collections import Counter
 from JarvisMath import JarvisMath
-from Usseful import index_in_range
-
 
 class Correlation():
     def __init__(self):

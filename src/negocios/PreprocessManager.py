@@ -10,7 +10,7 @@ from gi.repository import Gtk
 from gi.repository import GObject
 from controladores.CsvManager import CsvManager
 from vistas.ErrorDialog import ErrorDialog
-
+from analisis.NumericTransformations import NumericTransformations
 
 class PreprocessManager:
     def __init__(self, parent):
@@ -238,3 +238,48 @@ class PreprocessManager:
             window.emit('refresh-all')
         if len(self.csv.dataVersions) < 1:
             edit_undo.set_sensitive(False)
+
+    def update_transform_menu(self, widget, menu, menuBar):
+        num_attributes = self.csv.get_numeric_attributes()
+        for key, value in menu.iteritems():
+            if key.startswith('transform'):
+                for x in value['sub']['menu'].get_children():
+                    value['sub']['menu'].remove(x)
+                for attribute in num_attributes:
+                    new_menu = Gtk.MenuItem(attribute)
+                    value['sub']['sub'][attribute] = new_menu
+                    value['sub']['menu'].append(new_menu)
+                    new_menu.connect("activate", self.numeric_transform, key)
+                value['menu'].set_sensitive(True)
+        menuBar.show_all()
+
+    def numeric_transform(self, widget, algorithm):
+        attribute = widget.get_label()
+        values = self.csv.get_numeric_items(attribute)
+
+        if not values:
+            ErrorDialog("Error", "That attribute contains non numeric values", None)
+            return False
+
+        normalized = None
+        if 'min_max' in algorithm:
+            pass
+            # TODO: implement this
+        elif 'z_score_std' in algorithm:
+            normalized = NumericTransformations.z_score_standard(values)
+        elif 'z_score_abs' in algorithm:
+            normalized = NumericTransformations.z_score_absolute(values)
+        elif 'decimal' in algorithm:
+            normalized = NumericTransformations.decimal_scaling(values)
+
+        if not  normalized:
+            ErrorDialog("Error", "Couldn't calculate the normalized values", None)
+            return False
+
+        if not self.csv.replace_column(attribute, normalized):
+            ErrorDialog("Error", "The data provided couldn't be transformed", None)
+            return False
+
+        self.parent.emit('refresh-all')
+        self.parent.emit('registers-edited')
+        return True

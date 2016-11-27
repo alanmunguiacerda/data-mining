@@ -71,22 +71,29 @@ class MainWindow(Gtk.Window):
         self.notebook.append_page(self.analysis_page, Gtk.Label("Analysis"))
 
     def create_menu_bar(self):
-        file_items = [('file_open','Open File', True),
-                      ('file_save', 'Save File', False),
+        file_items = [('file_open','Open File', True, False),
+                      ('file_save', 'Save File', False, False),
                       None,
-                      ('file_exit', 'Exit', True)]
+                      ('file_exit', 'Exit', True, False)]
 
-        edit_items = [('edit_registers', 'Edit registers', False),
+        edit_items = [('edit_registers', 'Edit registers', False, False),
                       None,
-                      ('edit_undo', 'Undo', False)]
+                      ('edit_undo', 'Undo', False, False)]
+
+        transform_items = [('transform_min_max', 'Min max', False, True),
+                          ('transform_z_score_std', 'Z score std', False, True),
+                          ('transform_z_score_abs', 'Z score abs', False, True),
+                          ('transform_decimal_scaling', 'Decimal scaling', False, True)]
 
         file_menu = self.create_menu_item('file_menu', 'File', file_items)
         edit_menu = self.create_menu_item('edit_menu', 'Edit', edit_items)
+        transform_menu = self.create_menu_item('trans_menu', 'Transform', transform_items)
 
         self.menu_bar = Gtk.MenuBar()
         self.menu_bar.set_border_width(3)
         self.menu_bar.append(file_menu)
         self.menu_bar.append(edit_menu)
+        self.menu_bar.append(transform_menu)
 
         self.layout.pack_start(self.menu_bar, False, False, 0)
 
@@ -106,7 +113,18 @@ class MainWindow(Gtk.Window):
             if not i[0] in self.menu_options:
                 self.menu_options[i[0]] = Gtk.MenuItem(i[1])
                 self.menu_options[i[0]].set_sensitive(i[2])
-                file_menu.append(self.menu_options[i[0]])
+                if i[3]:
+                    sub_menu = Gtk.Menu()
+                    self.menu_options[i[0]] = {'menu': self.menu_options[i[0]],
+                                               'sub': {
+                                                   'menu': sub_menu,
+                                                   'sub': {}
+                                                   }
+                                               }
+                    self.menu_options[i[0]]['menu'].set_submenu(sub_menu)
+                    file_menu.append(self.menu_options[i[0]]['menu'])
+                else:
+                    file_menu.append(self.menu_options[i[0]])
 
         return self.menus[menu_name]
 
@@ -121,3 +139,6 @@ class MainWindow(Gtk.Window):
 
     def on_registers_edited(self, *args):
         self.menu_options['edit_undo'].set_sensitive(True)
+
+    def load_transformation_menu(self, *args):
+        self.pre_process_page.emit('update-transform-menu', self.menu_options, self.menu_bar)
