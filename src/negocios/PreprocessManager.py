@@ -11,6 +11,7 @@ from gi.repository import GObject
 from controladores.CsvManager import CsvManager
 from vistas.ErrorDialog import ErrorDialog
 from analisis.NumericTransformations import NumericTransformations
+from src.vistas.MinMaxDialog import MinMaxDialog
 
 class PreprocessManager:
     def __init__(self, parent):
@@ -263,8 +264,7 @@ class PreprocessManager:
 
         normalized = None
         if 'min_max' in algorithm:
-            pass
-            # TODO: implement this
+            normalized = self.numeric_min_max(values)
         elif 'z_score_std' in algorithm:
             normalized = NumericTransformations.z_score_standard(values)
         elif 'z_score_abs' in algorithm:
@@ -283,3 +283,24 @@ class PreprocessManager:
         self.parent.emit('refresh-all')
         self.parent.emit('registers-edited')
         return True
+
+    def numeric_min_max(self, values):
+        dialog = MinMaxDialog(self)
+
+        response = dialog.run()
+
+        if response == Gtk.ResponseType.OK:
+            data = dialog.get_data()
+            for key, value in data.iteritems():
+                try:
+                    data[key] = float(value)
+                except ValueError:
+                    ErrorDialog("Error", "All the values must be numeric", None)
+                    dialog.destroy()
+                    return False
+
+            normalized = NumericTransformations.min_max(values, data['old_min'], data['old_max'],
+                                                        data['new_min'], data['new_max'])
+        dialog.destroy()
+
+        return normalized

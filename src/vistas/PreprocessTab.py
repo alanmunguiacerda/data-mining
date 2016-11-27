@@ -11,7 +11,7 @@ from gi.repository import GObject
 from src.vistas.BaseTab import BaseTab
 from src.vistas.ErrorDialog import ErrorDialog
 from src.negocios.PreprocessManager import PreprocessManager
-from src.vistas.DomainPopup import DomainPopup
+from src.vistas.DomainDialog import DomainDialog
 from src.vistas.ModifyFileDialog import ModifyFileDialog
 
 class PreprocessTab(BaseTab):
@@ -229,7 +229,7 @@ class PreprocessTab(BaseTab):
             return
         attribute_name = model[row][1]
 
-        dialog = DomainPopup(self, attribute_name)
+        dialog = DomainDialog(self, attribute_name)
 
         response = dialog.run()
 
