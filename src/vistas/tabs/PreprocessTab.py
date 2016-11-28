@@ -1,18 +1,24 @@
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
 
-import gi
 import os
+
+import gi
 
 gi.require_version('Gtk', '3.0')
 from gi.repository import Gtk
 from gi.repository import GObject
 
-from vistas.BaseTab import BaseTab
-from vistas.ErrorDialog import ErrorDialog
+from vistas.tabs.BaseTab import BaseTab
+from vistas.dialogs.ErrorDialog import ErrorDialog
 from negocios.PreprocessManager import PreprocessManager
+<<<<<<< 01c0c655239f93d0e0dba0a958b2d33631ed5f6b:src/vistas/PreprocessTab.py
 from vistas.DomainDialog import DomainDialog
 from vistas.ModifyFileDialog import ModifyFileDialog
+=======
+from vistas.dialogs.DomainPopup import DomainPopup
+from vistas.dialogs.ModifyFileDialog import ModifyFileDialog
+>>>>>>> The classification is finally among us, Lil' Jarvis can see the future!:src/vistas/tabs/PreprocessTab.py
 
 class PreprocessTab(BaseTab):
 
@@ -22,7 +28,7 @@ class PreprocessTab(BaseTab):
         self.preprocess_manager = PreprocessManager(self)
 
         self.create_open_file_frame()
-        self.create_domain_drop_box()
+        self.create_class_attribute_frame()
         self.create_selected_attribute_frame()
         self.create_selected_attribute_numeric_frame()
         self.create_file_info_frame()
@@ -178,7 +184,7 @@ class PreprocessTab(BaseTab):
 
         self.insert_scrollable_tree_view(attributes_list_box, 'attributes_list')
 
-    def create_domain_drop_box(self):
+    def create_class_attribute_frame(self):
         frame = self.create_frame('class_attribute', 'Class attribute')
 
         self.combo_boxes['class_attribute'] = Gtk.ComboBoxText()

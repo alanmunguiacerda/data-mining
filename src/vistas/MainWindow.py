@@ -6,9 +6,9 @@ import gi
 gi.require_version('Gtk', '3.0')
 from gi.repository import GObject
 from gi.repository import Gtk
-from PreprocessTab import PreprocessTab
-from AnalysisTab import AnalysisTab
-from ClassificationTab import ClassificationTab
+from vistas.tabs.PreprocessTab import PreprocessTab
+from src.vistas.tabs.AnalysisTab import AnalysisTab
+from vistas.tabs.ClassificationTab import ClassificationTab
 
 class MainWindow(Gtk.Window):
 
@@ -50,6 +50,8 @@ class MainWindow(Gtk.Window):
         self.menu_options['edit_registers'].connect("activate", self.pre_process_page.on_edit_registers)
         self.menu_options['edit_undo'].connect("activate", self.pre_process_page.preprocess_manager.undo,
                                                self.pre_process_page, self.menu_options['edit_undo'])
+        self.notebook.connect("switch-page",
+                              self.classification_page.classification_manager.create_classification_interface)
 
         self.connect("update-pages", self.update_pages, self.analysis_page, 0)
 

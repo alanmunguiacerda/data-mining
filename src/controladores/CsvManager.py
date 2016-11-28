@@ -274,7 +274,6 @@ class CsvManager:
 
         return strings
 
-
     def get_mean(self, attribute_name):
         nums = self.get_numeric_items(attribute_name)
         if not nums:
@@ -344,4 +343,3 @@ class CsvManager:
 
     def class_index_changed(self, widget):
         CsvManager.class_index = widget.get_active()
-        print CsvManager.class_index

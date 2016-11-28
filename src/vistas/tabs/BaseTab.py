@@ -8,11 +8,15 @@ from gi.repository import Gtk
 
 
 class BaseTab(Gtk.Box):
-    def __init__(self, parent):
+    def __init__(self, parent, box=False, orientation=False):
         Gtk.Box.__init__(self)
         self.parent = parent
 
-        self.page_layout = Gtk.Grid()
+        if not box:
+            self.page_layout = Gtk.Grid()
+        else:
+            self.box = Gtk.Box()
+
         self.frames = {}
         self.boxes = {}
         self.grids = {}
@@ -23,12 +27,18 @@ class BaseTab(Gtk.Box):
         self.tree_views = {}
         self.combo_boxes = {}
 
-        self.create_page_layout()
+        if not box:
+            self.create_page_layout()
+        else:
+            self.create_page_box(orientation)
 
     def create_page_layout(self):
         self.page_layout.set_column_homogeneous(True)
         self.page_layout.set_row_spacing(10)
         self.page_layout.set_column_spacing(10)
+
+    def create_page_box(self, orientation):
+        self.box.set_orientation(orientation)
 
     def create_frame(self, frame_name, display_name):
         if frame_name in self.frames:
@@ -57,7 +67,7 @@ class BaseTab(Gtk.Box):
 
         return new_box
 
-    def create_grid(self, parent, grid_name):
+    def create_grid(self, parent, grid_name, expand=False):
         if grid_name in self.grids:
             return False
 
@@ -68,8 +78,8 @@ class BaseTab(Gtk.Box):
         self.grids[grid_name] = new_grid
 
         if type(parent) is Gtk.Box:
-            parent.pack_start(new_grid, False, False, 0)
-        elif type(parent) is Gtk.Frame:
+            parent.pack_start(new_grid, expand, expand, 0)
+        elif type(parent) is Gtk.Frame or type(parent) is Gtk.ScrolledWindow:
             parent.add(new_grid)
 
         return new_grid

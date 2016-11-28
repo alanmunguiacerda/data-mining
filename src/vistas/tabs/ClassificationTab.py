@@ -1,25 +1,26 @@
 import gi
+import constants
+from negocios.ClassificationManager import ClassificationManager
+
 gi.require_version('Gtk', '3.0')
 from gi.repository import Gtk
-from gi.repository import GObject
-from vistas.BaseTab import BaseTab
-from vistas.ErrorDialog import ErrorDialog
-from controladores.CsvManager import CsvManager
+from vistas.tabs.BaseTab import BaseTab
 
 
 class ClassificationTab(BaseTab):
 
     def __init__(self, parent):
-        BaseTab.__init__(self, parent)
+        BaseTab.__init__(self, parent, True, True)
 
-        self.csv_manager = CsvManager()
+        self.classification_manager = ClassificationManager(self)
+        self.type = 0
 
         self.create_classification_type_frame()
         self.create_trial_tuple_frame()
         self.create_model_tuple_frame()
 
         self.attach_all_to_layout()
-        self.pack_start(self.page_layout, True, True, 0)
+        self.pack_start(self.box, True, True, 0)
 
         self.set_signals()
         self.set_connections()
@@ -28,12 +29,16 @@ class ClassificationTab(BaseTab):
         pass
 
     def set_connections(self):
-        pass
+        self.buttons['zero_r_type'].connect("toggled", self.get_radio_button_active)
+        self.buttons['one_r_type'].connect("toggled", self.get_radio_button_active)
+        self.buttons['naive_bayes_type'].connect("toggled", self.get_radio_button_active)
+
+        self.buttons['predict'].connect('clicked', self.classification_manager.create_model)
 
     def attach_all_to_layout(self):
-        self.page_layout.attach(self.frames['classification_type'], 0, 0, 1, 1)
-        self.page_layout.attach(self.frames['trial_tuple'], 0, 1, 1, 1)
-        self.page_layout.attach(self.frames['model_tuple'], 0, 2, 1, 1)
+        self.box.pack_start(self.frames['classification_type'], False, False, 0)
+        self.box.pack_start(self.frames['trial_tuple'], True, True, 0)
+        self.box.pack_start(self.frames['model_tuple'], True, True, 0)
 
     def create_classification_type_frame(self):
         frame = self.create_frame('classification_type', 'Classification type')
@@ -56,30 +61,32 @@ class ClassificationTab(BaseTab):
 
     def create_trial_tuple_frame(self):
         frame = self.create_frame('trial_tuple', 'Trial tuple')
-        grid = self.create_grid(frame, 'trial_tuple')
-        box = self.create_box(grid, 'trial_tuple', False)
+        box = self.create_box(frame, 'trial_tuple', False)
 
-        self.create_scrollable_window(box, 'trial_tuple')
+        new_scrollable_window = self.create_scrollable_window(box, 'trial_tuple')
+        grid = self.create_grid(new_scrollable_window, 'trial_tuple', True)
 
-        predict_button_box = self.create_box(None, 'predict_button', False)
-        predict_button_box.set_spacing(10)
-        predict_button_box.set_homogeneous(True)
+        predict_button_box = self.create_box(box, 'predict_button', False)
 
         self.insert_buttons(predict_button_box,
                             ['predict'],
                             ['Predict'])
 
-        box.set_spacing(10)
-        grid.set_column_spacing(10)
-        grid.set_row_spacing(10)
+        box.set_spacing(5)
 
-        grid.attach(box, 0, 0, 1, 1)
-        grid.attach(predict_button_box, 1, 0, 1, 1)
+        grid.set_row_spacing(10)
+        grid.set_column_spacing(10)
+        grid.set_column_homogeneous(False)
+
+        predict_button_box.set_spacing(10)
+        predict_button_box.set_homogeneous(True)
+
+        box.add(predict_button_box)
 
     def create_model_tuple_frame(self):
-
         frame = self.create_frame('model_tuple', 'Model tuple')
         box = self.create_box(frame, 'model_tuple', False)
+
         new_scrollable_window = self.create_scrollable_window(box, 'model_tuple')
         grid = self.create_grid(new_scrollable_window, 'model_tuple')
 
@@ -87,13 +94,21 @@ class ClassificationTab(BaseTab):
         attribute_data_labels = ['accuracy']
 
         self.insert_static_label_data_label('model_tuple', attribute_statistics_labels, attribute_data_labels,
-                                            columns=2, data_col_width=2, start_column=1, start_row=0)
+                                            columns=2, data_col_width=2, start_column=2, start_row=0)
 
         box.set_spacing(10)
         grid.set_column_spacing(10)
         grid.set_row_spacing(10)
+        grid.set_column_homogeneous(False)
 
-        new_scrollable_window.add(grid)
+    def get_radio_button_active(self, widget):
+        if self.buttons['zero_r_type'].get_active():
+            self.type = constants.ZERO_R_TYPE
+        elif self.buttons['one_r_type'].get_active():
+            self.type = constants.ONE_R_TYPE
+        else:
+            self.type = constants.NAIVE_BAYES
+
 
 
 
