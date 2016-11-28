@@ -7,7 +7,7 @@ gi.require_version('Gtk', '3.0')
 from gi.repository import Gtk
 from gi.repository import GObject
 
-from src.vistas.BaseTab import BaseTab
+from src.vistas.tabs.BaseTab import BaseTab
 from src.negocios.AnalysisManager import AnalysisManager
 
 class AnalysisTab(BaseTab):
