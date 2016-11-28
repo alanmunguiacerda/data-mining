@@ -50,8 +50,12 @@ class MainWindow(Gtk.Window):
         self.menu_options['edit_registers'].connect("activate", self.pre_process_page.on_edit_registers)
         self.menu_options['edit_undo'].connect("activate", self.pre_process_page.preprocess_manager.undo,
                                                self.pre_process_page, self.menu_options['edit_undo'])
+        self.notebook.connect("switch-page", self.classification_selected)
         self.connect("update-pages", self.update_pages, self.analysis_page, 0)
-        self.connect("update-pages", self.update_pages, self.classification_page, 0)
+
+    def classification_selected(self, notebook, page, page_num):
+        if page == self.classification_page:
+            page.emit('page-selected')
 
     def update_pages(self, notebook, page, page_num):
         try:
