@@ -33,7 +33,7 @@ class AnalysisTab(BaseTab):
 
     def set_connections(self):
         self.connect('page-selected', self.selected)
-        self.buttons['calculate'].connect('clicked', self.analysisManager.calculate, self.text_inputs, self.combo_boxes, self.labels)
+        self.buttons['calculate'].connect('clicked', self.analysisManager.calculate, self.spin_inputs, self.combo_boxes, self.labels)
 
     def attach_all_to_layout(self):
         self.page_layout.attach(self.frames['data_table'], 0, 0, 3, 1)
@@ -54,7 +54,7 @@ class AnalysisTab(BaseTab):
         instance_static_labels = ['Instance #1', 'Instance #2']
         input_fields = ['instance_1', 'instance_2']
 
-        self.insert_static_label_input_text('selectors', instance_static_labels, input_fields)
+        self.insert_static_label_spin_input('selectors', instance_static_labels, input_fields)
 
         attribute_statistics_labels = ['Attribute #1', 'Attribute #2']
         combo_boxes = ['attribute_1', 'attribute_2']
@@ -85,4 +85,4 @@ class AnalysisTab(BaseTab):
         self.insert_static_label_data_label('cor_results', static_labels, data_labels, columns=1)
 
     def selected(self, *args):
-        self.analysisManager.update_all(self.tree_views['data_table'], self.combo_boxes)
+        self.analysisManager.update_all(self.tree_views['data_table'], self.combo_boxes, self.spin_inputs)
