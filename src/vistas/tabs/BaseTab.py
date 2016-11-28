@@ -22,6 +22,7 @@ class BaseTab(Gtk.Box):
         self.grids = {}
         self.labels = {}
         self.text_inputs = {}
+        self.spin_inputs = {}
         self.buttons = {}
         self.scrollable_windows = {}
         self.tree_views = {}
@@ -164,6 +165,28 @@ class BaseTab(Gtk.Box):
 
             c += 1
             if c >= columns or tx_in in extras:
+                (c, r) = (0, r + 1)
+
+    def insert_static_label_spin_input(self, grid_name, static_labels, spin_inputs,
+                                                   extras=[], start_col=0, start_row=0,
+                                                   columns=2, data_col_width=3):
+        if not grid_name in self.grids:
+            return False
+
+        (c, r) = (start_col, start_row)
+        self.grids[grid_name].set_column_spacing(5)
+        for st_lb, sp_in in zip(static_labels, spin_inputs):
+            static_label = Gtk.Label(st_lb + ': ')
+            self.spin_inputs[sp_in] = Gtk.SpinButton()
+
+            static_label.set_halign(Gtk.Align.START)
+
+            self.grids[grid_name].attach(static_label, c * data_col_width, r, 1, 1)
+            cols = (data_col_width - 1, (data_col_width - 1) * columns)[sp_in in extras]
+            self.grids[grid_name].attach(self.spin_inputs[sp_in], c * data_col_width + 1, r, cols, 1)
+
+            c += 1
+            if c >= columns or sp_in in extras:
                 (c, r) = (0, r + 1)
 
     def insert_button(self, parent, button_name, button_label, col=0, row=0, col_span=0, row_span=0):
