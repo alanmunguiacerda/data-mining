@@ -95,6 +95,7 @@ class AnalysisManager():
             numeric = False
 
         if not data_1 or not data_2:
+            data_labels['cor_result'].set_markup('MUST BE SAME TYPE')
             ErrorDialog('Error', 'Attributes must be of the same type', None)
             return False
 

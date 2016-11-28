@@ -1,0 +1,6 @@
+CLASS,FIELD 1,FIELD 2,FIELD 3,FIELD 4
+correr,200,no,reduced,presbyopic
+corriendo,300,no,normal,pre-presbyopic
+bailar,400,yes,reduced,presbyopic
+bayla,600,yes,normal,young
+hard,100,no,reduced,presbyopic
