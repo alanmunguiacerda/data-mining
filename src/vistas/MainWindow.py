@@ -6,12 +6,14 @@ import gi
 gi.require_version('Gtk', '3.0')
 from gi.repository import GObject
 from gi.repository import Gtk
-from PreprocessTab import PreprocessTab
-from AnalysisTab import AnalysisTab
+from vistas.tabs.PreprocessTab import PreprocessTab
+from src.vistas.tabs.AnalysisTab import AnalysisTab
+from vistas.tabs.ClassificationTab import ClassificationTab
 
 class MainWindow(Gtk.Window):
+
     def __init__(self):
-        Gtk.Window.__init__(self, title="Litul' Yarvis")
+        Gtk.Window.__init__(self, title="Lil' Jarvis")
 
         self.menus = {}
         self.menu_options = {}
@@ -23,6 +25,7 @@ class MainWindow(Gtk.Window):
 
         self.create_pre_process_page()
         self.create_analysis_page()
+        self.create_classification_page()
 
         self.set_signals()
         self.set_connections()
@@ -47,8 +50,12 @@ class MainWindow(Gtk.Window):
         self.menu_options['edit_registers'].connect("activate", self.pre_process_page.on_edit_registers)
         self.menu_options['edit_undo'].connect("activate", self.pre_process_page.preprocess_manager.undo,
                                                self.pre_process_page, self.menu_options['edit_undo'])
-
+        self.notebook.connect("switch-page", self.classification_selected)
         self.connect("update-pages", self.update_pages, self.analysis_page, 0)
+
+    def classification_selected(self, notebook, page, page_num):
+        if page == self.classification_page:
+            page.emit('page-selected')
 
     def update_pages(self, notebook, page, page_num):
         try:
@@ -69,6 +76,11 @@ class MainWindow(Gtk.Window):
         self.analysis_page = AnalysisTab(self)
         self.analysis_page.set_border_width(10)
         self.notebook.append_page(self.analysis_page, Gtk.Label("Analysis"))
+
+    def create_classification_page(self):
+        self.classification_page = ClassificationTab(self)
+        self.classification_page.set_border_width(10)
+        self.notebook.append_page(self.classification_page, Gtk.Label("Classification"))
 
     def create_menu_bar(self):
         file_items = [('file_open','Open File', True, False),

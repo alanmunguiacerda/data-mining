@@ -2,8 +2,11 @@
 # -*- coding: utf-8 -*-
 
 from __future__ import division
-import numpy
+
 from collections import Counter
+
+import numpy
+
 from JarvisMath import JarvisMath
 
 class Correlation():

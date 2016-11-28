@@ -1,10 +1,12 @@
-import numpy
-import math
 import json
-from src.constants import CHI_VALUES_DIR
+import math
 from collections import Counter
 from itertools import groupby
 from operator import itemgetter
+
+import numpy
+from constants import CHI_VALUES_DIR
+
 from Usseful import list_search
 
 
@@ -52,6 +54,9 @@ class JarvisMath:
 
     @staticmethod
     def gauss_density(x, mean, std_deviation):
+        if x == 0 or mean == 0 or std_deviation == 0:
+            return 0
+        x = float(x)
         div = 1 / (math.sqrt(2 * math.pi) * std_deviation)
         euler = pow(math.e, (-(pow(x - mean, 2)) / (2*pow(std_deviation, 2))))
         return div * euler

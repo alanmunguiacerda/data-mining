@@ -1,8 +1,12 @@
 from __future__ import division
+
 import collections
+
 import numpy
+
 from JarvisMath import JarvisMath
 from Usseful import list_search
+
 
 class Classification:
 
@@ -20,7 +24,7 @@ class Classification:
         return rule
 
     @staticmethod
-    def one_r(data, index_class):
+    def one_r(data, index_class, numeric_indexes=[]):
         registers = len(data)
 
         if registers == 0 or index_class not in range(0, len(data[0])):
@@ -31,6 +35,12 @@ class Classification:
         fewer_mistake = 1
 
         for key, value in frequency_table.iteritems():
+            # Ignore numeric attributes
+            index_found = list_search(key, numeric_indexes)
+
+            if index_found != -1:
+                continue
+
             attribute_values = value.items()
             attribute_values.sort()
 
@@ -62,7 +72,8 @@ class Classification:
                 fewer_mistake = attribute_error
                 f_m_key = key
 
-        model = {key: error_table[f_m_key]}
+        # verify
+        model = {f_m_key: error_table[f_m_key]}
 
         return model
 
@@ -80,17 +91,14 @@ class Classification:
                 index_found = list_search(key, numeric_indexes)
 
                 if index_found != -1:
+                    v2 = [float(elem) for elem in v2]
+
                     value[k2] = (numpy.mean(v2), numpy.std(v2))
                 else:
                     value[k2] = v2 / class_counter[k2[1]]
 
         for key, value in class_counter.iteritems():
             class_counter[key] = value / len(data)
-
-        '''for key, value in frequency_table.iteritems():
-            print key
-            for k2, v2 in value.iteritems():
-                print k2, v2'''
 
         return [frequency_table, class_counter]
 
@@ -116,11 +124,17 @@ class Classification:
             return []
 
     @staticmethod
-    def naive_bayes_prediction(instance, model, class_index, numeric_indexes = []):
+    def naive_bayes_prediction(instance, model, class_index, numeric_indexes=[]):
         if len(model) == 0 or class_index not in range(0, len(instance)) or len(instance) == 0:
             return []
 
         probabilities = []
+
+        '''for key, value in model[0].iteritems():
+            print key
+            for key2, value2 in value.iteritems():
+                print str(key2) + " " + str(value2)'''
+
         for key, value in model[1].iteritems():
             aux = 1
             for key2, value2 in model[0].iteritems():

@@ -1,0 +1,25 @@
+CLASS,FIELD 1,FIELD 2,FIELD 3,FIELD 4
+hard,myope,no,reduced,presbyopic
+hard,myope,no,normal,pre-presbyopic
+hard,myope,yes,reduced,presbyopic
+hard,myope,yes,normal,young
+hard,hyper,no,reduced,presbyopic
+hard,hyper,no,normal,pre-presbyopic
+hard,hyper,yes,reduced,presbyopic
+hard,hyper,yes,normal,young
+soft,myope,no,reduced,presbyopic
+soft,myope,no,normal,pre-presbyopic
+soft,myope,yes,reduced,presbyopic
+soft,myope,yes,normal,young
+soft,hyper,no,reduced,presbyopic
+soft,hyper,no,normal,pre-presbyopic
+soft,hyper,yes,reduced,presbyopic
+soft,hyper,yes,normal,presbyopic
+none,myope,no,reduced,presbyopic
+none,myope,no,normal,presbyopic
+none,myope,yes,reduced,presbyopic
+none,myope,yes,normal,young
+none,hyper,no,reduced,presbyopic
+none,hyper,no,normal,pre-presbyopic
+none,hyper,yes,reduced,presbyopic
+none,hyper,yes,normal,presbyopic

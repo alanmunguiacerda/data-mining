@@ -1,17 +1,18 @@
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
-import exceptions
-import gi
 import copy
+import exceptions
 import ntpath
+
+import gi
 
 gi.require_version('Gtk', '3.0')
 from gi.repository import Gtk
 from gi.repository import GObject
 from controladores.CsvManager import CsvManager
-from vistas.ErrorDialog import ErrorDialog
 from analisis.NumericTransformations import NumericTransformations
-from src.vistas.MinMaxDialog import MinMaxDialog
+from src.vistas.dialogs.MinMaxDialog import MinMaxDialog
+from vistas.dialogs.ErrorDialog import ErrorDialog
 
 class PreprocessManager:
     def __init__(self, parent):
