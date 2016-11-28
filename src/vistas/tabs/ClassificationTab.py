@@ -4,8 +4,8 @@ from negocios.ClassificationManager import ClassificationManager
 
 gi.require_version('Gtk', '3.0')
 from gi.repository import Gtk
+from gi.repository import GObject
 from vistas.tabs.BaseTab import BaseTab
-
 
 class ClassificationTab(BaseTab):
 
@@ -26,7 +26,8 @@ class ClassificationTab(BaseTab):
         self.set_connections()
 
     def set_signals(self):
-        pass
+        GObject.signal_new('page-selected', self, GObject.SIGNAL_RUN_LAST, GObject.TYPE_PYOBJECT,
+                           ())
 
     def set_connections(self):
         self.buttons['zero_r_type'].connect("toggled", self.get_radio_button_active)
@@ -34,6 +35,7 @@ class ClassificationTab(BaseTab):
         self.buttons['naive_bayes_type'].connect("toggled", self.get_radio_button_active)
 
         self.buttons['predict'].connect('clicked', self.classification_manager.create_model)
+        self.connect('page-selected', self.classification_manager.create_classification_interface)
 
     def attach_all_to_layout(self):
         self.box.pack_start(self.frames['classification_type'], False, False, 0)

@@ -10,13 +10,9 @@ gi.require_version('Gtk', '3.0')
 from gi.repository import Gtk
 from gi.repository import GObject
 from controladores.CsvManager import CsvManager
-<<<<<<< 01c0c655239f93d0e0dba0a958b2d33631ed5f6b
 from analisis.NumericTransformations import NumericTransformations
 from src.vistas.dialogs.MinMaxDialog import MinMaxDialog
-=======
 from vistas.dialogs.ErrorDialog import ErrorDialog
-
->>>>>>> The classification is finally among us, Lil' Jarvis can see the future!
 
 class PreprocessManager:
     def __init__(self, parent):

@@ -12,13 +12,8 @@ from gi.repository import GObject
 from vistas.tabs.BaseTab import BaseTab
 from vistas.dialogs.ErrorDialog import ErrorDialog
 from negocios.PreprocessManager import PreprocessManager
-<<<<<<< 01c0c655239f93d0e0dba0a958b2d33631ed5f6b:src/vistas/PreprocessTab.py
-from vistas.DomainDialog import DomainDialog
-from vistas.ModifyFileDialog import ModifyFileDialog
-=======
-from vistas.dialogs.DomainPopup import DomainPopup
+from vistas.dialogs.DomainDialog import DomainDialog
 from vistas.dialogs.ModifyFileDialog import ModifyFileDialog
->>>>>>> The classification is finally among us, Lil' Jarvis can see the future!:src/vistas/tabs/PreprocessTab.py
 
 class PreprocessTab(BaseTab):
 

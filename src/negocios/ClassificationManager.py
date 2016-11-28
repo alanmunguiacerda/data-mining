@@ -85,10 +85,7 @@ class ClassificationManager:
         self.parent.grids['model_tuple'].attach(label, 0, row, 1, 1)
         self.parent.grids['model_tuple'].attach(label_d, 1, row, 2, 1)
 
-    def create_classification_interface(self, notebook, page, page_index):
-        if page_index != constants.CLASSIFICACTION_PAGE_INDEX:
-            return
-
+    def create_classification_interface(self, widget):
         if len(self.labels_trial.items()) > 0:
             self.clear_all()
 
