@@ -300,8 +300,8 @@ class PreprocessManager:
                     dialog.destroy()
                     return False
 
-            normalized = NumericTransformations.min_max(values, data['old_min'], data['old_max'],
+            dialog.destroy()
+            return NumericTransformations.min_max(values, data['old_min'], data['old_max'],
                                                         data['new_min'], data['new_max'])
         dialog.destroy()
-
-        return normalized
+        return False
