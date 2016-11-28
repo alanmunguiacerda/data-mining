@@ -5,7 +5,7 @@ from negocios.ClassificationManager import ClassificationManager
 gi.require_version('Gtk', '3.0')
 from gi.repository import Gtk
 from gi.repository import GObject
-from vistas.tabs.BaseTab import BaseTab
+from src.vistas.tabs.BaseTab import BaseTab
 
 class ClassificationTab(BaseTab):
 

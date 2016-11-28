@@ -1,11 +1,12 @@
 import constants
 import gi
 import sys
+
 from copy import deepcopy
-from Usseful import take_out_class
-from constants import MISSING_DATA_SYMBOL
-from controladores.CsvManager import CsvManager
-from analisis.Classification import Classification
+from src.Usseful import take_out_class
+from src.constants import MISSING_DATA_SYMBOL
+from src.controladores.CsvManager import CsvManager
+from src.analisis.Classification import Classification
 
 gi.require_version('Gtk', '3.0')
 from gi.repository import Gtk

@@ -1,4 +1,3 @@
-
 class NominalTransformation:
 
     def __init__(self):

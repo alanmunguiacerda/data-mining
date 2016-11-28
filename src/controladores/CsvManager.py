@@ -12,7 +12,7 @@ import collections
 
 import re
 
-import constants
+from src import constants
 
 
 class CsvManager:

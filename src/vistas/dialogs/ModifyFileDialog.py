@@ -1,7 +1,7 @@
 import gi
 import re
 
-import constants
+from src import constants
 
 gi.require_version('Gtk', '3.0')
 from gi.repository import Gtk

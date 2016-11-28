@@ -9,11 +9,11 @@ gi.require_version('Gtk', '3.0')
 from gi.repository import Gtk
 from gi.repository import GObject
 
-from vistas.tabs.BaseTab import BaseTab
-from vistas.dialogs.ErrorDialog import ErrorDialog
-from negocios.PreprocessManager import PreprocessManager
-from vistas.dialogs.DomainDialog import DomainDialog
-from vistas.dialogs.ModifyFileDialog import ModifyFileDialog
+from src.vistas.tabs.BaseTab import BaseTab
+from src.vistas.dialogs.ErrorDialog import ErrorDialog
+from src.negocios.PreprocessManager import PreprocessManager
+from src.vistas.dialogs.DomainDialog import DomainDialog
+from src.vistas.dialogs.ModifyFileDialog import ModifyFileDialog
 
 class PreprocessTab(BaseTab):
 

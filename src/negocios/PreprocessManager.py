@@ -9,10 +9,10 @@ import gi
 gi.require_version('Gtk', '3.0')
 from gi.repository import Gtk
 from gi.repository import GObject
-from controladores.CsvManager import CsvManager
-from analisis.NumericTransformations import NumericTransformations
+from src.controladores.CsvManager import CsvManager
+from src.analisis.NumericTransformations import NumericTransformations
 from src.vistas.dialogs.MinMaxDialog import MinMaxDialog
-from vistas.dialogs.ErrorDialog import ErrorDialog
+from src.vistas.dialogs.ErrorDialog import ErrorDialog
 
 class PreprocessManager:
     def __init__(self, parent):

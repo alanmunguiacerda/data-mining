@@ -8,11 +8,11 @@ import exceptions
 gi.require_version('Gtk', '3.0')
 from gi.repository import Gtk
 
-from controladores.CsvManager import CsvManager
-from analisis.NominalTransformation import NominalTransformation
-from analisis.Correlation import Correlation
-from analisis.Usseful import list_search
-from vistas.ErrorDialog import ErrorDialog
+from src.controladores.CsvManager import CsvManager
+from src.analisis.NominalTransformation import NominalTransformation
+from src.analisis.Correlation import Correlation
+from src.Usseful import list_search
+from src.vistas.dialogs.ErrorDialog import ErrorDialog
 
 class AnalysisManager():
     def __init__(self, parent):

@@ -6,9 +6,9 @@ import gi
 gi.require_version('Gtk', '3.0')
 from gi.repository import GObject
 from gi.repository import Gtk
-from vistas.tabs.PreprocessTab import PreprocessTab
+from src.vistas.tabs.PreprocessTab import PreprocessTab
 from src.vistas.tabs.AnalysisTab import AnalysisTab
-from vistas.tabs.ClassificationTab import ClassificationTab
+from src.vistas.tabs.ClassificationTab import ClassificationTab
 
 class MainWindow(Gtk.Window):
 

@@ -1,6 +1,5 @@
 import exceptions
 
-
 def list_search(val, lst):
     try:
         index_found = lst.index(val)
