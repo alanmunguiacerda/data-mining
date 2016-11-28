@@ -1,10 +1,10 @@
-import constants
+import src.constants
 import gi
 import sys
 
 from copy import deepcopy
+from src.vistas.dialogs.ErrorDialog import ErrorDialog
 from src.Usseful import take_out_class
-from src.constants import MISSING_DATA_SYMBOL
 from src.controladores.CsvManager import CsvManager
 from src.analisis.Classification import Classification
 
@@ -17,6 +17,10 @@ class ClassificationManager:
 
     def __init__(self, parent):
         self.parent = parent
+
+        self.data_changed = False
+        self.type = 0
+
         self.labels_trial = {}
         self.input_trial = {}
         self.labels_static_model = {}
@@ -63,7 +67,7 @@ class ClassificationManager:
             values = self.csv_manager.get_index_counters(attribute)
             widget = Gtk.ComboBoxText()
             for elem in values.items():
-                if elem[0] != MISSING_DATA_SYMBOL:
+                if elem[0] != src.constants.MISSING_DATA_SYMBOL:
                     widget.append_text(elem[0])
             widget.set_active(0)
 
@@ -87,8 +91,12 @@ class ClassificationManager:
         self.parent.grids['model_tuple'].attach(label_d, 1, row, 2, 1)
 
     def create_classification_interface(self, widget):
-        if len(self.labels_trial.items()) > 0:
-            self.clear_all()
+        # if len(self.labels_trial.items()) > 0:
+        if not self.data_changed:
+            return
+
+        self.clear_all()
+        self.data_changed = False
 
         for ind, elem in enumerate(self.csv_manager.headers):
             if ind == self.csv_manager.class_index:
@@ -103,16 +111,23 @@ class ClassificationManager:
         self.parent.grids['trial_tuple'].show_all()
         self.parent.grids['model_tuple'].show_all()
 
+        self.data_changed = False
+
     def create_model(self, widget):
+        if self.data_changed:
+            ErrorDialog("Classification error", "Reload the tab to predict", None)
+            return
+
         self.parent.labels['accuracy'].set_text("")
+
         self.clean_database()
 
         trial_tuple = self.get_trial_tuple()
 
-        if self.parent.type == constants.ZERO_R_TYPE:
+        if self.type == src.constants.ZERO_R_TYPE:
             model = Classification.zero_r([elem[self.csv_manager.class_index] for elem in self.data])
             model_tuple = Classification.zero_r_prediction(trial_tuple, model, self.csv_manager.class_index)
-        elif self.parent.type == constants.ONE_R_TYPE:
+        elif self.type == src.constants.ONE_R_TYPE:
             model = Classification.one_r(self.data,  self.csv_manager.class_index, self.numeric_indexes)
             model_tuple = Classification.one_r_prediction(trial_tuple, model, self.csv_manager.class_index)
         else:
@@ -130,7 +145,7 @@ class ClassificationManager:
 
         for ind, instance in enumerate(self.data):
             for elem in instance:
-                if elem == constants.MISSING_DATA_SYMBOL:
+                if elem == src.constants.MISSING_DATA_SYMBOL:
                     del self.data[ind]
                     break
 
@@ -153,6 +168,9 @@ class ClassificationManager:
         return trial_tuple
 
     def set_model_tuple(self, model_tuple):
+        if len(model_tuple) == 0:
+            return
+
         for ind, key in enumerate(self.csv_manager.headers):
             label = self.labels_data_model[key+'_model']
             label.set_text(str(model_tuple[ind]))
@@ -160,10 +178,10 @@ class ClassificationManager:
     def calculate_accuracy(self, model):
         data_without_class = take_out_class(self.data, self.csv_manager.class_index)
 
-        if self.parent.type == constants.ZERO_R_TYPE:
+        if self.type == src.constants.ZERO_R_TYPE:
             model_data = [Classification.zero_r_prediction(elem, model,
                                                            self.csv_manager.class_index) for elem in data_without_class]
-        elif self.parent.type == constants.ONE_R_TYPE:
+        elif self.type == src.constants.ONE_R_TYPE:
             model_data = [Classification.one_r_prediction(elem, model,
                                                           self.csv_manager.class_index) for elem in data_without_class]
         else:
@@ -174,4 +192,7 @@ class ClassificationManager:
         accuracy = Classification.calculate_accuracy(self.data, model_data, self.csv_manager.class_index)
 
         self.parent.labels['accuracy'].set_text(str(accuracy))
+
+    def set_data_changed(self):
+        self.data_changed = True
 

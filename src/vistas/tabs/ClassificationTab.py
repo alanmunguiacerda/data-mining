@@ -1,6 +1,6 @@
 import gi
-import constants
-from negocios.ClassificationManager import ClassificationManager
+import src.constants
+from src.negocios.ClassificationManager import ClassificationManager
 
 gi.require_version('Gtk', '3.0')
 from gi.repository import Gtk
@@ -13,7 +13,6 @@ class ClassificationTab(BaseTab):
         BaseTab.__init__(self, parent, True, True)
 
         self.classification_manager = ClassificationManager(self)
-        self.type = 0
 
         self.create_classification_type_frame()
         self.create_trial_tuple_frame()
@@ -105,11 +104,14 @@ class ClassificationTab(BaseTab):
 
     def get_radio_button_active(self, widget):
         if self.buttons['zero_r_type'].get_active():
-            self.type = constants.ZERO_R_TYPE
+            self.classification_manager.type = src.constants.ZERO_R_TYPE
         elif self.buttons['one_r_type'].get_active():
-            self.type = constants.ONE_R_TYPE
+            self.classification_manager.type = src.constants.ONE_R_TYPE
         else:
-            self.type = constants.NAIVE_BAYES
+            self.classification_manager.type = src.constants.NAIVE_BAYES
+
+    def data_changed(self, widget):
+        self.classification_manager.set_data_changed()
 
 
 

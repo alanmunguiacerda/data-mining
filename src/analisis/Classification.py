@@ -73,7 +73,10 @@ class Classification:
                 f_m_key = key
 
         # verify
-        model = {f_m_key: error_table[f_m_key]}
+        try:
+            model = {f_m_key: error_table[f_m_key]}
+        except Exception:
+            model = {}
 
         return model
 

@@ -48,6 +48,8 @@ class PreprocessTab(BaseTab):
                            ())
         GObject.signal_new('update-transform-menu', self, GObject.SIGNAL_RUN_LAST, GObject.TYPE_PYOBJECT,
                            (GObject.TYPE_PYOBJECT, GObject.TYPE_PYOBJECT,))
+        GObject.signal_new('class-changed', self, GObject.SIGNAL_RUN_LAST, GObject.TYPE_PYOBJECT,
+                           ())
 
     def set_connections(self):
         self.buttons['file_select'].connect('clicked', self.on_open_file_menu)
@@ -96,6 +98,7 @@ class PreprocessTab(BaseTab):
 
         # Transform menu update
         self.connect('update-transform-menu', self.preprocess_manager.update_transform_menu)
+        self.combo_boxes['class_attribute'].connect("changed", self.class_changed)
         self.combo_boxes['class_attribute'].connect("changed", self.preprocess_manager.csv.class_index_changed)
 
     def attach_all_to_layout(self):
@@ -267,3 +270,6 @@ class PreprocessTab(BaseTab):
 
     def refresh_parent(self, widget):
         self.parent.emit('update-pages')
+
+    def class_changed(self, widget):
+        self.emit("class-changed")

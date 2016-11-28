@@ -52,6 +52,8 @@ class MainWindow(Gtk.Window):
                                                self.pre_process_page, self.menu_options['edit_undo'])
         self.notebook.connect("switch-page", self.classification_selected)
         self.connect("update-pages", self.update_pages, self.analysis_page, 0)
+        self.connect("update-pages", self.classification_page.data_changed)
+        self.pre_process_page.connect("class-changed", self.classification_page.data_changed)
 
     def classification_selected(self, notebook, page, page_num):
         if page == self.classification_page:
@@ -75,11 +77,13 @@ class MainWindow(Gtk.Window):
     def create_analysis_page(self):
         self.analysis_page = AnalysisTab(self)
         self.analysis_page.set_border_width(10)
+        self.analysis_page.set_sensitive(False)
         self.notebook.append_page(self.analysis_page, Gtk.Label("Analysis"))
 
     def create_classification_page(self):
         self.classification_page = ClassificationTab(self)
         self.classification_page.set_border_width(10)
+        self.classification_page.set_sensitive(False)
         self.notebook.append_page(self.classification_page, Gtk.Label("Classification"))
 
     def create_menu_bar(self):
@@ -147,7 +151,12 @@ class MainWindow(Gtk.Window):
     def enable_save_edit_file(self, *args):
         self.menu_options['file_save'].set_sensitive(True)
         self.menu_options['edit_registers'].set_sensitive(True)
+        self.enable_pages()
         self.emit('update-pages')
+
+    def enable_pages(self):
+        self.analysis_page.set_sensitive(True)
+        self.classification_page.set_sensitive(True)
 
     def on_registers_edited(self, *args):
         self.menu_options['edit_undo'].set_sensitive(True)
