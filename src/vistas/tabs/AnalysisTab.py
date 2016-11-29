@@ -85,4 +85,4 @@ class AnalysisTab(BaseTab):
         self.insert_static_label_data_label('cor_results', static_labels, data_labels, columns=1)
 
     def selected(self, *args):
-        self.analysisManager.update_all(self.tree_views['data_table'], self.combo_boxes, self.spin_inputs)
+        self.analysisManager.update_all(self.tree_views['data_table'], self.combo_boxes, self.spin_inputs, self.labels)
