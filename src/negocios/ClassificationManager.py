@@ -118,7 +118,7 @@ class ClassificationManager:
             ErrorDialog("Classification error", "Reload the tab to predict", None)
             return
 
-        self.parent.labels['accuracy'].set_text("")
+        self.clear_labels()
 
         self.clean_database()
 
@@ -195,4 +195,12 @@ class ClassificationManager:
 
     def set_data_changed(self):
         self.data_changed = True
+
+    def clear_labels(self):
+        keys = self.labels_data_model.keys()
+
+        for key in keys:
+            self.labels_data_model[key].set_text("")
+
+        self.parent.labels['accuracy'].set_text("")
 
