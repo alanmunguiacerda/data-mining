@@ -64,12 +64,13 @@ class AnalysisManager():
         adjustment = Gtk.Adjustment(0, 0, len(self.csv.data)-1, 1, 0, 0)
         spin_input.configure(adjustment, 1, 0)
 
-    def update_all(self, tree_view, combo_boxes, spin_inputs):
+    def update_all(self, tree_view, combo_boxes, spin_inputs, data_labels):
         self.set_file_in_table(tree_view)
         self.load_combo_box_attributes(combo_boxes['attribute_1'])
         self.load_combo_box_attributes(combo_boxes['attribute_2'])
         self.load_spin_input(spin_inputs['instance_1'])
         self.load_spin_input(spin_inputs['instance_2'])
+        self.clear_result_labels(data_labels)
 
     def calculate_transform(self, data_labels, value_1, value_2):
         data_labels['lev_1'].set_markup(str(value_1))
@@ -95,6 +96,7 @@ class AnalysisManager():
             numeric = False
 
         if not data_1 or not data_2:
+            data_labels['cor_result'].set_markup('MUST BE SAME TYPE')
             ErrorDialog('Error', 'Attributes must be of the same type', None)
             return False
 
@@ -132,3 +134,10 @@ class AnalysisManager():
 
         self.calculate_transform(data_labels, value_1, value_2)
 
+    def clear_result_labels(self, labels):
+        labels['lev_result'].set_markup("")
+        labels['lev_1'].set_markup("")
+        labels['lev_2'].set_markup("")
+        labels['cor_result'].set_markup("")
+        labels['cor_1'].set_markup("")
+        labels['cor_2'].set_markup("")

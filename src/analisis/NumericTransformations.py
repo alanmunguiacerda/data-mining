@@ -41,6 +41,7 @@ class NumericTransformations:
     @staticmethod
     def decimal_scaling(data):
         abs_max = abs(max(min(data), max(data), key=abs))
+        abs_max = int(abs_max)
         factor = pow(10, len(str(abs_max)))
 
         normalized_data = []

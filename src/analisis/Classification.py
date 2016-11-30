@@ -73,7 +73,10 @@ class Classification:
                 f_m_key = key
 
         # verify
-        model = {f_m_key: error_table[f_m_key]}
+        try:
+            model = {f_m_key: error_table[f_m_key]}
+        except Exception:
+            model = {}
 
         return model
 
@@ -117,6 +120,7 @@ class Classification:
 
         position = model.keys()[0]
         instance_val = instance[position if position < class_index else position - 1]
+
         if list_search(instance_val, model[position].keys()) != -1:
             instance.insert(class_index, model[position][instance_val])
             return instance
@@ -141,9 +145,15 @@ class Classification:
                 val = instance[key2 if key2 < class_index else key2 - 1]
                 index_found = list_search(key2, numeric_indexes)
                 if index_found == -1:
-                    aux *= value2[(val, key)]
+                    try:
+                        aux *= value2[(val, key)]
+                    except Exception:
+                        return []
                 else:
-                    aux *= JarvisMath.gauss_density(val, value2[key][0], value2[key][1])
+                    try:
+                        aux *= JarvisMath.gauss_density(val, value2[key][0], value2[key][1])
+                    except Exception:
+                        return []
 
             aux *= value
             probabilities.append((aux, key))

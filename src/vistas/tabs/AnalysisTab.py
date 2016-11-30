@@ -79,10 +79,10 @@ class AnalysisTab(BaseTab):
         box = self.create_box(frame, 'cor_results')
         self.create_grid(box, 'cor_results')
 
-        static_labels = ['Attribute 1', 'Attribute 2', 'Result']
+        static_labels = ['Attribute 1', 'Attribute 2', 'Independence prob.']
         data_labels = ['cor_1', 'cor_2', 'cor_result']
 
         self.insert_static_label_data_label('cor_results', static_labels, data_labels, columns=1)
 
     def selected(self, *args):
-        self.analysisManager.update_all(self.tree_views['data_table'], self.combo_boxes, self.spin_inputs)
+        self.analysisManager.update_all(self.tree_views['data_table'], self.combo_boxes, self.spin_inputs, self.labels)
